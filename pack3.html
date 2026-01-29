@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusDude • Smart Class Routine</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      padding: 20px;
+      color: #333;
+    }
+    h1 { text-align: center; color: #fff; }
+
+    /* Next class card */
+    #nextClassCard {
+      max-width: 650px;
+      margin: 20px auto 10px auto;
+      background: #fff7ed;
+      border-left: 6px solid #f59e0b;
+      border-radius: 14px;
+      padding: 16px 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      display: none;
+    }
+    #nextClassTitle { font-size: 14px; font-weight: 700; color: #92400e; }
+    #nextClassName { font-size: 22px; font-weight: 800; margin-top: 6px; color: #1f2937; }
+    #nextClassMeta { font-size: 14px; margin-top: 4px; color: #374151; }
+    #nextClassCountdown { font-size: 26px; font-weight: 800; margin-top: 10px; color: #92400e; }
+
+    table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      background: #ffffffee;
+      margin-top: 20px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+    }
+    th, td {
+      border: 1px solid #e0e0e0;
+      padding: 14px 10px;
+      text-align: center;
+      font-size: 14px;
+      vertical-align: top;
+    }
+    th {
+      background: linear-gradient(135deg, #1f2937, #374151);
+      color: #fff;
+      font-weight: 600;
+    }
+    .day-name { display: flex; justify-content: center; gap: 6px; align-items: center; }
+    .calendar { font-size: 14px; }
+    td[contenteditable] { cursor: text; }
+
+    .class { background: linear-gradient(135deg, #c7d2fe, #e0e7ff); color: #1e3a8a; font-weight: 600; }
+    .lab { background: linear-gradient(135deg, #bbf7d0, #dcfce7); color: #065f46; font-weight: 600; }
+    .gap { background: linear-gradient(135deg, #fecaca, #fee2e2); color: #7f1d1d; }
+
+    .cell-countdown {
+      font-size: 12px;
+      margin-top: 6px;
+      color: #374151;
+      background: rgba(255,255,255,0.7);
+      border-radius: 999px;
+      display: inline-block;
+      padding: 2px 8px;
+    }
+    .next-countdown {
+      font-size: 20px;
+      font-weight: 800;
+      background: #fef3c7;
+      color: #92400e;
+      padding: 6px 14px;
+    }
+    .next-class {
+      outline: 3px solid #f59e0b;
+      box-shadow: 0 0 0 4px rgba(245,158,11,0.3);
+    }
+
+    .controls { display: flex; justify-content: center; gap: 10px; margin-top: 10px; }
+    button, select {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 999px;
+      font-weight: 600;
+    }
+    button { background: linear-gradient(135deg, #22c55e, #16a34a); color: #fff; cursor: pointer; }
+  </style>
+</head>
+<body>
+
+<h1>🎓 CampusDude</h1><p style="text-align:center;color:#e5e7eb;margin-top:-10px;">Your smart campus timetable & next‑class tracker</p>
+
+<!-- Pinned Next Class Card -->
+<div id="nextClassCard">
+  <div id="nextClassTitle">⭐ NEXT UPCOMING CLASS</div>
+  <div id="nextClassName"></div>
+  <div id="nextClassMeta"></div>
+  <div id="nextClassCountdown"></div>
+</div>
+
+<div class="controls">
+  <button onclick="resetToday()">🔄 Reset Today</button>
+  <button onclick="addDay()">➕ Add Day</button>
+  <select id="notifyTime">
+    <option value="15">🔔 15 min</option>
+    <option value="30">🔔 30 min</option>
+    <option value="60">🔔 1 hour</option>
+  </select>
+</div>
+
+<table id="routineTable">
+  <tr>
+    <th>Day / Time</th>
+    <th>8:00 – 10:00</th>
+    <th>10:20 – 12:40</th>
+    <th>12:40 – 2:10</th>
+    <th>2:40 – 4:10</th>
+  </tr>
+
+  <tr>
+    <th><span class="day-name"><span class="calendar">📅</span>Sunday</span></th>
+    <td contenteditable class="lab">Algorithms Laboratory<div class="cell-countdown"></div></td>
+    <td contenteditable class="lab">Electronic Devices Laboratory<div class="cell-countdown"></div></td>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="class">Electronic Devices Theory<div class="cell-countdown"></div></td>
+  </tr>
+
+  <tr>
+    <th><span class="day-name"><span class="calendar">📅</span>Monday</span></th>
+    <td contenteditable class="class">Object Oriented Programming Theory<div class="cell-countdown"></div></td>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="class">Computational Statistics and Probability<div class="cell-countdown"></div></td>
+  </tr>
+
+  <tr>
+    <th><span class="day-name"><span class="calendar">📅</span>Tuesday</span></th>
+    <td contenteditable class="class">Algorithms Theory<div class="cell-countdown"></div></td>
+    <td contenteditable class="lab">Physics Laboratory<div class="cell-countdown"></div></td>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="class">Electronic Devices Theory<div class="cell-countdown"></div></td>
+  </tr>
+
+  <tr>
+    <th><span class="day-name"><span class="calendar">📅</span>Wednesday</span></th>
+    <td contenteditable class="lab">Object Oriented Programming Laboratory<div class="cell-countdown"></div></td>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="class">Computational Statistics and Probability<div class="cell-countdown"></div></td>
+  </tr>
+</table>
+
+<script>
+const classTimes = ['08:00','10:20','12:40','14:40'];
+const weekdays = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+let notifyBeforeMinutes = Number(localStorage.getItem('notifyBeforeMinutes')) || 15;
+let notified = false;
+
+const select = document.getElementById('notifyTime');
+select.value = notifyBeforeMinutes;
+select.onchange = () => {
+  notifyBeforeMinutes = Number(select.value);
+  localStorage.setItem('notifyBeforeMinutes', notifyBeforeMinutes);
+  notified = false;
+};
+
+function addDay() {
+  const name = prompt('Enter any day name:');
+  if (!name) return;
+  const isReal = weekdays.includes(name);
+  const icon = isReal ? '📅' : '📝';
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <th><span class="day-name"><span class="calendar">${icon}</span>${name}</span></th>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="gap">gap</td>
+    <td contenteditable class="gap">gap</td>`;
+  document.getElementById('routineTable').appendChild(row);
+}
+
+function resetToday() {
+  const today = new Date().toLocaleDateString('en-US',{weekday:'long'});
+  document.querySelectorAll('#routineTable tr').forEach((row,i)=>{
+    if(i===0) return;
+    if(row.cells[0].innerText.includes(today)){
+      for(let j=1;j<row.cells.length;j++){
+        row.cells[j].innerText='gap';
+        row.cells[j].className='gap';
+      }
+    }
+  });
+}
+
+function updateCountdown(){
+  const now=new Date();
+  let nextCell=null; let nextDiff=null; let nextMeta=null;
+
+  document.querySelectorAll('.cell-countdown').forEach(c=>c.classList.remove('next-countdown'));
+  document.querySelectorAll('td').forEach(td=>td.classList.remove('next-class'));
+
+  document.querySelectorAll('#routineTable tr').forEach((row,i)=>{
+    if(i===0) return;
+    const dayText=row.cells[0].innerText.replace('📅','').replace('📝','').trim();
+    const dayIndex=weekdays.indexOf(dayText);
+
+    row.querySelectorAll('td').forEach((cell,cIdx)=>{
+      const cd=cell.querySelector('.cell-countdown');
+      if(!cd||cell.innerText.includes('gap')||dayIndex===-1) return;
+
+      let target=new Date(now);
+      let diffDay=dayIndex-now.getDay();
+      if(diffDay<0) diffDay+=7;
+      target.setDate(now.getDate()+diffDay);
+      const [h,m]=classTimes[cIdx].split(':');
+      target.setHours(h,m,0,0);
+
+      const diff=target-now;
+      if(diff<=0){cd.innerText='Passed'; return;}
+
+      if(nextDiff===null||diff<nextDiff){
+        nextDiff=diff;
+        nextCell=cell;
+        nextMeta={ name: cell.childNodes[0].nodeValue.trim(), day: dayText, time: classTimes[cIdx] };
+      }
+
+      const d=Math.floor(diff/86400000);
+      const hh=Math.floor(diff/3600000)%24;
+      const mm=Math.floor(diff/60000)%60;
+      const ss=Math.floor(diff/1000)%60;
+      cd.innerText=`${d?d+'d ':''}${hh}h ${mm}m ${ss}s`;
+
+      if(diff<notifyBeforeMinutes*60000 && !notified && Notification.permission==='granted'){
+        new Notification('Upcoming Class',{body:nextMeta.name});
+        notified=true;
+      }
+    });
+  });
+
+  const card=document.getElementById('nextClassCard');
+  if(nextCell && nextMeta){
+    nextCell.classList.add('next-class');
+    nextCell.querySelector('.cell-countdown')?.classList.add('next-countdown');
+
+    card.style.display='block';
+    document.getElementById('nextClassName').innerText=nextMeta.name;
+    document.getElementById('nextClassMeta').innerText=`${nextMeta.day} • ${nextMeta.time}`;
+
+    const d=Math.floor(nextDiff/86400000);
+    const hh=Math.floor(nextDiff/3600000)%24;
+    const mm=Math.floor(nextDiff/60000)%60;
+    const ss=Math.floor(nextDiff/1000)%60;
+    document.getElementById('nextClassCountdown').innerText=
+      `${d?d+'d ':''}${hh}h ${mm}m ${ss}s left`;
+  } else {
+    card.style.display='none';
+  }
+}
+
+if('Notification' in window) Notification.requestPermission();
+setInterval(updateCountdown,1000);
+</script>
+<footer style="margin-top:40px;text-align:center;color:#e5e7eb;font-size:13px;">
+  <p>Idea by Nishu/Built by Talvi • <strong>CampusDude</strong></p>
+  <p>Your data stays on your device (no login, no tracking)</p>
+</footer>
+</body>
+</html>
