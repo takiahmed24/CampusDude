@@ -1,204 +1,136 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>CampusDude • Smart Class Routine</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CampusDude • Smart Class Routine</title>
 
-  <style>
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #667eea, #764ba2);
-      padding: 20px;
-      color: #333;
-    }
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#667eea">
 
-    h1 {
-      text-align: center;
-      color: #fff;
-      font-size: 32px;
-    }
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  padding: 20px;
+  color: #333;
+}
 
-    /* NEXT CLASS CARD */
-    #nextClassCard {
-      max-width: 650px;
-      margin: 20px auto;
-      background: #fff7ed;
-      border-left: 6px solid #f59e0b;
-      border-radius: 14px;
-      padding: 16px 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-      display: none;
-    }
+h1 {
+  text-align: center;
+  color: #fff;
+  font-size: 32px;
+}
 
-    #nextClassTitle {
-      font-size: 14px;
-      font-weight: 700;
-      color: #92400e;
-    }
+#nextClassCard {
+  max-width: 650px;
+  margin: 20px auto;
+  background: #fff7ed;
+  border-left: 6px solid #f59e0b;
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+  display: none;
+}
 
-    #nextClassName {
-      font-size: 22px;
-      font-weight: 800;
-      margin-top: 6px;
-      color: #1f2937;
-    }
+#nextClassTitle { font-size: 14px; font-weight: 700; color: #92400e; }
+#nextClassName { font-size: 22px; font-weight: 800; }
+#nextClassMeta { font-size: 14px; color: #374151; }
+#nextClassCountdown { font-size: 26px; font-weight: 800; color: #92400e; }
 
-    #nextClassMeta {
-      font-size: 14px;
-      margin-top: 4px;
-      color: #374151;
-    }
+.controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
 
-    #nextClassCountdown {
-      font-size: 26px;
-      font-weight: 800;
-      margin-top: 10px;
-      color: #92400e;
-    }
+button, select {
+  padding: 10px 18px;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+}
 
-    /* CONTROLS */
-    .controls {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
+button {
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  color: #fff;
+  cursor: pointer;
+}
 
-    button, select {
-      padding: 10px 18px;
-      border: none;
-      border-radius: 999px;
-      font-weight: 600;
-      cursor: pointer;
-    }
+.table-wrapper {
+  overflow-x: auto;
+  margin-top: 20px;
+}
 
-    button {
-      background: linear-gradient(135deg, #22c55e, #16a34a);
-      color: #fff;
-    }
+table {
+  min-width: 700px;
+  width: 100%;
+  background: #ffffffee;
+  border-radius: 14px;
+  border-collapse: separate;
+  border-spacing: 0;
+}
 
-    /* TABLE WRAPPER (important for mobile) */
-    .table-wrapper {
-      overflow-x: auto;
-      margin-top: 20px;
-    }
+th, td {
+  border: 1px solid #e0e0e0;
+  padding: 12px;
+  text-align: center;
+  vertical-align: top;
+}
 
-    table {
-      border-collapse: separate;
-      border-spacing: 0;
-      width: 100%;
-      min-width: 700px;
-      background: #ffffffee;
-      border-radius: 14px;
-      overflow: hidden;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-    }
+th {
+  background: #1f2937;
+  color: #fff;
+}
 
-    th, td {
-      border: 1px solid #e0e0e0;
-      padding: 14px 10px;
-      text-align: center;
-      font-size: 14px;
-      vertical-align: top;
-    }
+.class { background: #c7d2fe; font-weight: 600; }
+.lab { background: #bbf7d0; font-weight: 600; }
+.gap { background: #fecaca; }
 
-    th {
-      background: linear-gradient(135deg, #1f2937, #374151);
-      color: #fff;
-    }
+.cell-countdown {
+  font-size: 12px;
+  margin-top: 6px;
+  background: #fff;
+  border-radius: 999px;
+  padding: 2px 8px;
+  display: inline-block;
+}
 
-    td[contenteditable] {
-      cursor: text;
-    }
+.section {
+  font-size: 12px;
+  font-weight: 700;
+  margin-top: 4px;
+}
 
-    .class {
-      background: linear-gradient(135deg, #c7d2fe, #e0e7ff);
-      color: #1e3a8a;
-      font-weight: 600;
-    }
+.room {
+  font-size: 12px;
+  opacity: 0.8;
+}
 
-    .lab {
-      background: linear-gradient(135deg, #bbf7d0, #dcfce7);
-      color: #065f46;
-      font-weight: 600;
-    }
+.next-class {
+  outline: 3px solid #f59e0b;
+}
 
-    .gap {
-      background: linear-gradient(135deg, #fecaca, #fee2e2);
-      color: #7f1d1d;
-    }
+footer {
+  margin-top: 40px;
+  text-align: center;
+  color: #e5e7eb;
+  font-size: 13px;
+}
 
-    .cell-countdown {
-      font-size: 12px;
-      margin-top: 6px;
-      background: rgba(255,255,255,0.7);
-      border-radius: 999px;
-      display: inline-block;
-      padding: 2px 8px;
-    }
-
-    .next-countdown {
-      font-size: 18px;
-      font-weight: 800;
-      background: #fef3c7;
-      color: #92400e;
-      padding: 6px 14px;
-    }
-
-    .next-class {
-      outline: 3px solid #f59e0b;
-      box-shadow: 0 0 0 4px rgba(245,158,11,0.3);
-    }
-
-    footer {
-      margin-top: 40px;
-      text-align: center;
-      color: #e5e7eb;
-      font-size: 13px;
-    }
-
-    /* 📱 MOBILE FIX */
-    @media (max-width: 768px) {
-      body {
-        padding: 10px;
-      }
-
-      h1 {
-        font-size: 26px;
-      }
-
-      #nextClassName {
-        font-size: 18px;
-      }
-
-      #nextClassCountdown {
-        font-size: 20px;
-      }
-
-      th, td {
-        padding: 8px 6px;
-        font-size: 12px;
-      }
-
-      .cell-countdown {
-        font-size: 11px;
-      }
-
-      button, select {
-        padding: 8px 14px;
-        font-size: 13px;
-      }
-    }
-  </style>
+@media (max-width: 768px) {
+  body { padding: 10px; }
+  h1 { font-size: 26px; }
+}
+</style>
 </head>
 
 <body>
 
 <h1>🎓 CampusDude</h1>
 <p style="text-align:center;color:#e5e7eb;margin-top:-10px;">
-  Your smart campus timetable & next-class tracker
+Your smart campus timetable & next-class tracker
 </p>
 
 <div id="nextClassCard">
@@ -211,61 +143,162 @@
 <div class="controls">
   <button onclick="resetToday()">🔄 Reset Today</button>
   <button onclick="addDay()">➕ Add Day</button>
-  <select id="notifyTime">
-    <option value="15">🔔 15 min</option>
-    <option value="30">🔔 30 min</option>
-    <option value="60">🔔 1 hour</option>
-  </select>
 </div>
 
 <div class="table-wrapper">
 <table id="routineTable">
-  <tr>
-    <th>Day / Time</th>
-    <th>8:00 – 10:00</th>
-    <th>10:20 – 12:40</th>
-    <th>12:40 – 2:10</th>
-    <th>2:40 – 4:10</th>
-  </tr>
+<tr>
+  <th>Day</th>
+  <th>8:00</th>
+  <th>10:20</th>
+  <th>12:40</th>
+  <th>14:40</th>
+</tr>
 
-  <tr>
-    <th>Sunday</th>
-    <td contenteditable class="lab">Algorithms Laboratory<div class="cell-countdown"></div></td>
-    <td contenteditable class="lab">Electronic Devices Laboratory<div class="cell-countdown"></div></td>
-    <td contenteditable class="gap">gap</td>
-    <td contenteditable class="class">Electronic Devices Theory<div class="cell-countdown"></div></td>
-  </tr>
-
-  <tr>
-    <th>Monday</th>
-    <td contenteditable class="class">Object Oriented Programming Theory<div class="cell-countdown"></div></td>
-    <td contenteditable class="gap">gap</td>
-    <td contenteditable class="gap">gap</td>
-    <td contenteditable class="class">Computational Statistics and Probability<div class="cell-countdown"></div></td>
-  </tr>
-
-  <tr>
-    <th>Tuesday</th>
-    <td contenteditable class="class">Algorithms Theory<div class="cell-countdown"></div></td>
-    <td contenteditable class="lab">Physics Laboratory<div class="cell-countdown"></div></td>
-    <td contenteditable class="gap">gap</td>
-    <td contenteditable class="class">Electronic Devices Theory<div class="cell-countdown"></div></td>
-  </tr>
-
-  <tr>
-    <th>Wednesday</th>
-    <td contenteditable class="lab">OOP Laboratory<div class="cell-countdown"></div></td>
-    <td contenteditable class="gap">gap</td>
-    <td contenteditable class="gap">gap</td>
-    <td contenteditable class="class">Computational Statistics and Probability<div class="cell-countdown"></div></td>
-  </tr>
+<tr>
+  <th>Sunday</th>
+  <td class="lab" contenteditable>
+    Algorithms Lab
+    <div class="section">[N]</div>
+    <div class="room">Room: DS0103</div>
+    <div class="cell-countdown"></div>
+  </td>
+  <td class="lab" contenteditable>
+    ED Lab
+    <div class="section">[Q]</div>
+    <div class="room">Room: DS0306</div>
+    <div class="cell-countdown"></div>
+  </td>
+  <td class="gap">gap</td>
+  <td class="class" contenteditable>
+    ED Theory
+    <div class="section">[S]</div>
+    <div class="room">Room: 6116</div>
+    <div class="cell-countdown"></div>
+  </td>
+</tr>
 </table>
 </div>
 
 <footer>
-  <p>Idea by Nishu / Built by Talvi • <strong>CampusDude</strong></p>
-  <p>Your data stays on your device (no login, no tracking)</p>
+<p>Your data stays on your device (no login, no tracking)</p>
 </footer>
+
+<script>
+const STORAGE_KEY = "campusdude_routine_v2";
+const classTimes = ["08:00","10:20","12:40","14:40"];
+const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+
+const table = document.getElementById("routineTable");
+
+/* Load saved routine */
+const saved = localStorage.getItem(STORAGE_KEY);
+if (saved) table.innerHTML = saved;
+
+/* Save on edit */
+table.addEventListener("input", () => {
+  localStorage.setItem(STORAGE_KEY, table.innerHTML);
+});
+
+/* Countdown logic (day-aware) */
+function updateCountdown() {
+  const now = new Date();
+  let next = null;
+  let nextDiff = Infinity;
+
+  document.querySelectorAll(".cell-countdown").forEach(c => c.textContent = "");
+  document.querySelectorAll("td").forEach(td => td.classList.remove("next-class"));
+
+  document.querySelectorAll("#routineTable tr").forEach((row,i)=>{
+    if(i===0) return;
+
+    const day = row.cells[0].innerText.trim();
+    const dayIndex = weekdays.indexOf(day);
+    if(dayIndex === -1) return;
+
+    [...row.cells].slice(1).forEach((cell,idx)=>{
+      if(cell.classList.contains("gap")) return;
+
+      const cd = cell.querySelector(".cell-countdown");
+      if(!cd) return;
+
+      const target = new Date(now);
+      let diffDay = dayIndex - now.getDay();
+      if(diffDay < 0) diffDay += 7;
+      target.setDate(now.getDate() + diffDay);
+
+      const [h,m] = classTimes[idx].split(":");
+      target.setHours(h,m,0,0);
+
+      const diff = target - now;
+      if(diff <= 0) return;
+
+      const d  = Math.floor(diff / 86400000);
+      const hh = Math.floor(diff / 3600000) % 24;
+      const mm = Math.floor(diff / 60000) % 60;
+      const ss = Math.floor(diff / 1000) % 60;
+
+      cd.textContent = `${d ? d+"d " : ""}${hh}h ${mm}m ${ss}s`;
+
+      if(diff < nextDiff){
+        nextDiff = diff;
+
+        const name = cell.childNodes[0].nodeValue.trim();
+        const section = cell.querySelector(".section")?.innerText || "";
+        const room = cell.querySelector(".room")?.innerText || "";
+
+        next = {
+          title: `${name} ${section}`.trim(),
+          room,
+          day,
+          time: classTimes[idx],
+          countdown: cd.textContent,
+          cell
+        };
+      }
+    });
+  });
+
+  if(next){
+    next.cell.classList.add("next-class");
+    document.getElementById("nextClassCard").style.display = "block";
+    document.getElementById("nextClassName").textContent = next.title;
+    document.getElementById("nextClassMeta").textContent =
+      `${next.day} • ${next.time} • ${next.room}`;
+    document.getElementById("nextClassCountdown").textContent = next.countdown;
+  }
+}
+
+setInterval(updateCountdown,1000);
+updateCountdown();
+
+/* Utilities */
+function resetToday(){
+  const today = weekdays[new Date().getDay()];
+  document.querySelectorAll("#routineTable tr").forEach((row,i)=>{
+    if(i===0) return;
+    if(row.cells[0].innerText.trim() === today){
+      [...row.cells].slice(1).forEach(td=>{
+        td.className="gap";
+        td.innerText="gap";
+      });
+    }
+  });
+  localStorage.setItem(STORAGE_KEY, table.innerHTML);
+}
+
+function addDay(){
+  const name = prompt("Enter day name:");
+  if(!name) return;
+  const row = table.insertRow();
+  row.innerHTML = `
+    <th>${name}</th>
+    <td class="gap">gap</td>
+    <td class="gap">gap</td>
+    <td class="gap">gap</td>
+    <td class="gap">gap</td>`;
+}
+</script>
 
 </body>
 </html>
