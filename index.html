@@ -3,125 +3,58 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>CampusDude • Smart Class Routine</title>
-
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#667eea">
+<title>CampusDude</title>
 
 <style>
 body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: system-ui, sans-serif;
   background: linear-gradient(135deg, #667eea, #764ba2);
   padding: 20px;
   color: #333;
 }
-
-h1 {
-  text-align: center;
-  color: #fff;
-  font-size: 32px;
-}
-
-#nextClassCard {
-  max-width: 650px;
-  margin: 20px auto;
-  background: #fff7ed;
-  border-left: 6px solid #f59e0b;
-  border-radius: 14px;
-  padding: 16px 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-  display: none;
-}
-
-#nextClassTitle { font-size: 14px; font-weight: 700; color: #92400e; }
-#nextClassName { font-size: 22px; font-weight: 800; }
-#nextClassMeta { font-size: 14px; color: #374151; }
-#nextClassCountdown { font-size: 26px; font-weight: 800; color: #92400e; }
-
-.controls {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-button, select {
-  padding: 10px 18px;
-  border: none;
-  border-radius: 999px;
-  font-weight: 600;
-}
-
-button {
-  background: linear-gradient(135deg, #22c55e, #16a34a);
-  color: #fff;
-  cursor: pointer;
-}
-
-.table-wrapper {
-  overflow-x: auto;
-  margin-top: 20px;
-}
+h1 { color:#fff; text-align:center; }
 
 table {
-  min-width: 700px;
-  width: 100%;
-  background: #ffffffee;
-  border-radius: 14px;
-  border-collapse: separate;
-  border-spacing: 0;
+  width:100%;
+  min-width:700px;
+  background:#fff;
+  border-collapse:collapse;
+  margin-top:20px;
 }
-
-th, td {
-  border: 1px solid #e0e0e0;
-  padding: 12px;
-  text-align: center;
-  vertical-align: top;
+th,td {
+  border:1px solid #ddd;
+  padding:10px;
+  text-align:center;
+  vertical-align:top;
 }
+th { background:#1f2937; color:#fff; }
 
-th {
-  background: #1f2937;
-  color: #fff;
-}
+.lab { background:#bbf7d0; }
+.class { background:#c7d2fe; }
+.gap { background:#fecaca; }
 
-.class { background: #c7d2fe; font-weight: 600; }
-.lab { background: #bbf7d0; font-weight: 600; }
-.gap { background: #fecaca; }
-
+.section { font-size:12px; font-weight:700; }
+.room { font-size:12px; opacity:.8; }
 .cell-countdown {
-  font-size: 12px;
-  margin-top: 6px;
-  background: #fff;
-  border-radius: 999px;
-  padding: 2px 8px;
-  display: inline-block;
+  display:inline-block;
+  margin-top:6px;
+  padding:2px 8px;
+  background:#fff;
+  border-radius:999px;
+  font-size:12px;
 }
 
-.section {
-  font-size: 12px;
-  font-weight: 700;
-  margin-top: 4px;
+.next {
+  outline:3px solid #f59e0b;
 }
 
-.room {
-  font-size: 12px;
-  opacity: 0.8;
-}
-
-.next-class {
-  outline: 3px solid #f59e0b;
-}
-
-footer {
-  margin-top: 40px;
-  text-align: center;
-  color: #e5e7eb;
-  font-size: 13px;
-}
-
-@media (max-width: 768px) {
-  body { padding: 10px; }
-  h1 { font-size: 26px; }
+#card {
+  background:#fff7ed;
+  padding:15px;
+  border-left:6px solid #f59e0b;
+  margin:20px auto;
+  max-width:600px;
+  display:none;
 }
 </style>
 </head>
@@ -129,130 +62,164 @@ footer {
 <body>
 
 <h1>🎓 CampusDude</h1>
-<p style="text-align:center;color:#e5e7eb;margin-top:-10px;">
-Your smart campus timetable & next-class tracker
-</p>
 
-<div id="nextClassCard">
-  <div id="nextClassTitle">⭐ NEXT UPCOMING CLASS</div>
-  <div id="nextClassName"></div>
-  <div id="nextClassMeta"></div>
-  <div id="nextClassCountdown"></div>
+<div id="card">
+  <strong>NEXT UPCOMING CLASS</strong>
+  <div id="c-name"></div>
+  <div id="c-meta"></div>
+  <div id="c-time"></div>
 </div>
 
-<div class="controls">
-  <button onclick="resetToday()">🔄 Reset Today</button>
-  <button onclick="addDay()">➕ Add Day</button>
-</div>
-
-<div class="table-wrapper">
-<table id="routineTable">
+<div style="overflow-x:auto">
+<table id="table">
 <tr>
   <th>Day</th>
-  <th>8:00</th>
-  <th>10:20</th>
-  <th>12:40</th>
-  <th>14:40</th>
+  <th>08:00 – 10:20</th>
+  <th>10:20 – 12:40</th>
+  <th>12:40 – 14:10</th>
+  <th>14:40 – 16:10</th>
 </tr>
 
 <tr>
   <th>Sunday</th>
-  <td class="lab" contenteditable>
-    Algorithms Lab
+  <td class="lab">
+    Algorithms Laboratory
     <div class="section">[N]</div>
     <div class="room">Room: DS0103</div>
     <div class="cell-countdown"></div>
   </td>
-  <td class="lab" contenteditable>
-    ED Lab
+  <td class="lab">
+    Electronic Devices Laboratory
     <div class="section">[Q]</div>
     <div class="room">Room: DS0306</div>
     <div class="cell-countdown"></div>
   </td>
   <td class="gap">gap</td>
-  <td class="class" contenteditable>
-    ED Theory
+  <td class="class">
+    Electronic Devices Theory
     <div class="section">[S]</div>
     <div class="room">Room: 6116</div>
+    <div class="cell-countdown"></div>
+  </td>
+</tr>
+
+<tr>
+  <th>Monday</th>
+  <td class="class">
+    Object Oriented Programming
+    <div class="section">[M]</div>
+    <div class="room">Room: 9302</div>
+    <div class="cell-countdown"></div>
+  </td>
+  <td class="gap">gap</td>
+  <td class="gap">gap</td>
+  <td class="class">
+    Computational Statistics and Probability
+    <div class="section">[BB]</div>
+    <div class="room">Room: DN0610</div>
+    <div class="cell-countdown"></div>
+  </td>
+</tr>
+
+<tr>
+  <th>Tuesday</th>
+  <td class="class">
+    Algorithms
+    <div class="section">[N]</div>
+    <div class="room">Room: 9202</div>
+    <div class="cell-countdown"></div>
+  </td>
+  <td class="lab">
+    Physics Laboratory
+    <div class="section">[S]</div>
+    <div class="room">Room: DE0203</div>
+    <div class="cell-countdown"></div>
+  </td>
+  <td class="gap">gap</td>
+  <td class="class">
+    Electronic Devices Theory
+    <div class="section">[S]</div>
+    <div class="room">Room: 6116</div>
+    <div class="cell-countdown"></div>
+  </td>
+</tr>
+
+<tr>
+  <th>Wednesday</th>
+  <td class="lab">
+    Object Oriented Programming Laboratory
+    <div class="section">[M]</div>
+    <div class="room">Room: DS0202</div>
+    <div class="cell-countdown"></div>
+  </td>
+  <td class="gap">gap</td>
+  <td class="gap">gap</td>
+  <td class="class">
+    Computational Statistics and Probability
+    <div class="section">[BB]</div>
+    <div class="room">Room: DN0610</div>
     <div class="cell-countdown"></div>
   </td>
 </tr>
 </table>
 </div>
 
-<footer>
-<p>Your data stays on your device (no login, no tracking)</p>
-</footer>
-
 <script>
-const STORAGE_KEY = "campusdude_routine_v2";
-const classTimes = ["08:00","10:20","12:40","14:40"];
-const weekdays = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const TIME_SLOTS = [
+  { start: "08:00", end: "10:20" },
+  { start: "10:20", end: "12:40" },
+  { start: "12:40", end: "14:10" },
+  { start: "14:40", end: "16:10" }
+];
 
-const table = document.getElementById("routineTable");
+const DAY_TO_INDEX = {
+  Sunday:0, Monday:1, Tuesday:2, Wednesday:3,
+  Thursday:4, Friday:5, Saturday:6
+};
 
-/* Load saved routine */
-const saved = localStorage.getItem(STORAGE_KEY);
-if (saved) table.innerHTML = saved;
-
-/* Save on edit */
-table.addEventListener("input", () => {
-  localStorage.setItem(STORAGE_KEY, table.innerHTML);
-});
-
-/* Countdown logic (day-aware) */
-function updateCountdown() {
+function tick(){
   const now = new Date();
-  let next = null;
-  let nextDiff = Infinity;
+  let next = null, min = Infinity;
 
   document.querySelectorAll(".cell-countdown").forEach(c => c.textContent = "");
-  document.querySelectorAll("td").forEach(td => td.classList.remove("next-class"));
+  document.querySelectorAll("td").forEach(td => td.classList.remove("next"));
 
-  document.querySelectorAll("#routineTable tr").forEach((row,i)=>{
+  document.querySelectorAll("#table tr").forEach((row,i)=>{
     if(i===0) return;
+    const dayName = row.cells[0].innerText.trim();
+    const dayIdx = DAY_TO_INDEX[dayName];
 
-    const day = row.cells[0].innerText.trim();
-    const dayIndex = weekdays.indexOf(day);
-    if(dayIndex === -1) return;
-
-    [...row.cells].slice(1).forEach((cell,idx)=>{
+    [...row.cells].slice(1).forEach((cell,j)=>{
       if(cell.classList.contains("gap")) return;
 
-      const cd = cell.querySelector(".cell-countdown");
-      if(!cd) return;
-
       const target = new Date(now);
-      let diffDay = dayIndex - now.getDay();
+      let diffDay = dayIdx - now.getDay();
       if(diffDay < 0) diffDay += 7;
-      target.setDate(now.getDate() + diffDay);
+      target.setDate(now.getDate()+diffDay);
 
-      const [h,m] = classTimes[idx].split(":");
+      const [h,m] = TIME_SLOTS[j].start.split(":");
       target.setHours(h,m,0,0);
 
       const diff = target - now;
       if(diff <= 0) return;
 
-      const d  = Math.floor(diff / 86400000);
-      const hh = Math.floor(diff / 3600000) % 24;
-      const mm = Math.floor(diff / 60000) % 60;
-      const ss = Math.floor(diff / 1000) % 60;
+      const d = Math.floor(diff/86400000);
+      const hh = Math.floor(diff/3600000)%24;
+      const mm = Math.floor(diff/60000)%60;
+      const ss = Math.floor(diff/1000)%60;
 
-      cd.textContent = `${d ? d+"d " : ""}${hh}h ${mm}m ${ss}s`;
+      const countdown = `${d?d+"d ":""}${hh}h ${mm}m ${ss}s`;
+      cell.querySelector(".cell-countdown").textContent = countdown;
 
-      if(diff < nextDiff){
-        nextDiff = diff;
-
-        const name = cell.childNodes[0].nodeValue.trim();
-        const section = cell.querySelector(".section")?.innerText || "";
-        const room = cell.querySelector(".room")?.innerText || "";
-
+      if(diff < min){
+        min = diff;
         next = {
-          title: `${name} ${section}`.trim(),
-          room,
-          day,
-          time: classTimes[idx],
-          countdown: cd.textContent,
+          name: cell.childNodes[0].nodeValue.trim(),
+          section: cell.querySelector(".section")?.innerText || "",
+          room: cell.querySelector(".room")?.innerText || "",
+          time: `${TIME_SLOTS[j].start} – ${TIME_SLOTS[j].end}`,
+          day: dayName,
+          countdown,
           cell
         };
       }
@@ -260,44 +227,18 @@ function updateCountdown() {
   });
 
   if(next){
-    next.cell.classList.add("next-class");
-    document.getElementById("nextClassCard").style.display = "block";
-    document.getElementById("nextClassName").textContent = next.title;
-    document.getElementById("nextClassMeta").textContent =
+    next.cell.classList.add("next");
+    document.getElementById("card").style.display = "block";
+    document.getElementById("c-name").textContent =
+      `${next.name} ${next.section}`;
+    document.getElementById("c-meta").textContent =
       `${next.day} • ${next.time} • ${next.room}`;
-    document.getElementById("nextClassCountdown").textContent = next.countdown;
+    document.getElementById("c-time").textContent = next.countdown;
   }
 }
 
-setInterval(updateCountdown,1000);
-updateCountdown();
-
-/* Utilities */
-function resetToday(){
-  const today = weekdays[new Date().getDay()];
-  document.querySelectorAll("#routineTable tr").forEach((row,i)=>{
-    if(i===0) return;
-    if(row.cells[0].innerText.trim() === today){
-      [...row.cells].slice(1).forEach(td=>{
-        td.className="gap";
-        td.innerText="gap";
-      });
-    }
-  });
-  localStorage.setItem(STORAGE_KEY, table.innerHTML);
-}
-
-function addDay(){
-  const name = prompt("Enter day name:");
-  if(!name) return;
-  const row = table.insertRow();
-  row.innerHTML = `
-    <th>${name}</th>
-    <td class="gap">gap</td>
-    <td class="gap">gap</td>
-    <td class="gap">gap</td>
-    <td class="gap">gap</td>`;
-}
+setInterval(tick,1000);
+tick();
 </script>
 
 </body>
