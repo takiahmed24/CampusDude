@@ -261,13 +261,10 @@ window.sendMessage=async()=>{
 };
 
 /* show messenger after login */
-const _init=init;
-init=async()=>{
-  await _init();
-  chatWidget.classList.remove("hidden");
-  loadMessages();
-};
+document.getElementById("chatWidget").classList.remove("hidden");
+loadMessages();
 </script>
 
 </body>
 </html>
+
