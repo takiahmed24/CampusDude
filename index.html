@@ -6,139 +6,50 @@
 <title>CampusDude</title>
 
 <style>
-:root{--slot-height:160px}
 body{
   font-family:system-ui,sans-serif;
   background:linear-gradient(135deg,#667eea,#764ba2);
-  margin:0;padding:20px;color:#111
+  margin:0;padding:20px;
 }
-h1{text-align:center;color:#fff}
-
-/* AUTH */
-#authPage{
+.card{
   max-width:360px;margin:80px auto;
   background:#fff;border-radius:16px;
   padding:24px;box-shadow:0 20px 40px rgba(0,0,0,.25)
 }
-#authPage input{
-  width:100%;padding:10px;margin-bottom:10px;
-  border-radius:10px;border:1px solid #ddd
-}
-#authPage button{
+input{width:100%;padding:10px;margin-bottom:10px;border-radius:10px;border:1px solid #ddd}
+button{
   width:100%;padding:10px;border-radius:999px;
-  border:none;font-weight:700;
-  background:#4f46e5;color:#fff;cursor:pointer
+  border:none;font-weight:700;background:#4f46e5;color:#fff;cursor:pointer
 }
-.switch{text-align:center;font-size:13px;cursor:pointer;color:#4f46e5}
-
-/* APP */
-#app{display:none}
-.topbar{
-  display:flex;justify-content:space-between;
-  align-items:center;color:#fff;margin-bottom:12px
-}
-.controls{display:flex;gap:10px;color:#fff;margin-bottom:12px}
-select{padding:6px 12px;border-radius:999px}
-
-/* NEXT */
-#nextCard{
-  display:none;background:#fff7ed;
-  border-left:6px solid #f59e0b;
-  border-radius:14px;padding:14px;
-  margin-bottom:14px
-}
-#nextTimer{font-size:26px;font-weight:900;color:#7c2d12}
-
-/* TABLE */
-.table-wrap{overflow-x:auto}
-table{width:100%;min-width:1100px;border-collapse:collapse;background:#fff}
-th,td{border:1px solid #ddd;text-align:center}
-th{background:#1f2937;color:#fff;padding:10px}
-.day-col{background:#1f2937;color:#fff;font-weight:700}
-.slot{position:relative;height:var(--slot-height);cursor:pointer}
-
-/* CLASS */
-.class-block{
-  position:absolute;left:6px;right:6px;
-  border-radius:14px;padding:8px;
-  font-size:13px;cursor:pointer
-}
-.class-title{font-weight:800}
-.timer{margin-top:6px;font-size:12px}
-.next{outline:3px solid #f59e0b}
-
-/* MODAL */
-.modal{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.5);
-  display:none;align-items:center;justify-content:center
-}
-.modal-content{
-  background:#fff;border-radius:14px;
-  padding:20px;width:360px
-}
-.modal-content input{width:100%;padding:8px;margin-bottom:8px}
-.modal-actions{display:flex;gap:10px;justify-content:center}
+.link{font-size:13px;text-align:center;color:#4f46e5;cursor:pointer;margin-top:6px}
+#app{display:none;color:#fff}
 </style>
 </head>
 
 <body>
 
 <!-- AUTH -->
-<div id="authPage">
+<div id="authPage" class="card">
   <h2 id="authTitle">Login</h2>
   <input id="nameInput" placeholder="Your name" style="display:none">
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
   <button onclick="submitAuth()">Continue</button>
-  <div class="switch" onclick="toggleMode()" id="switchText">
-    New here? Create an account
-  </div>
+  <div class="link" onclick="toggleMode()" id="switchText">New here? Create an account</div>
+  <div class="link" onclick="resetPassword()">Forgot password?</div>
+</div>
+
+<!-- RESET PASSWORD -->
+<div id="resetPage" class="card" style="display:none">
+  <h2>Reset password</h2>
+  <input id="newPassword" type="password" placeholder="New password">
+  <button onclick="updatePassword()">Update password</button>
 </div>
 
 <!-- APP -->
 <div id="app">
-  <div class="topbar">
-    <div id="welcome"></div>
-    <button onclick="logout()">Logout</button>
-  </div>
-
-  <div class="controls">
-    <label>⏱ Timer</label>
-    <select id="timerMode">
-      <option value="smart">Smart</option>
-      <option value="left">Time left</option>
-      <option value="passed">Time passed</option>
-    </select>
-  </div>
-
-  <div id="nextCard">
-    <div id="nextTitle"></div>
-    <div id="nextMeta"></div>
-    <div id="nextTimer"></div>
-  </div>
-
-  <div class="table-wrap">
-    <table id="table"></table>
-  </div>
-</div>
-
-<!-- MODAL -->
-<div class="modal" id="classModal">
-  <div class="modal-content">
-    <h3 id="modalTitle"></h3>
-    <input id="mTitle" placeholder="Course name">
-    <input id="mSection" placeholder="Section">
-    <input id="mRoom" placeholder="Room">
-    <input id="mStart" type="time">
-    <input id="mEnd" type="time">
-    <div id="repeatDays"></div>
-    <div class="modal-actions">
-      <button onclick="saveClass()">Save</button>
-      <button onclick="deleteClass()">Delete</button>
-      <button onclick="closeModal()">Cancel</button>
-    </div>
-  </div>
+  <h2 id="welcome"></h2>
+  <button onclick="logout()">Logout</button>
 </div>
 
 <script type="module">
@@ -149,11 +60,9 @@ const supabase = createClient(
   "sb_publishable_OINdv3b3c9-SRUr7ngWVlA_iPXM89of"
 );
 
-const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
-const SLOT_START=8,SLOT_END=18;
-let classes=[],activeClass=null,activeSlot=null,authMode="login";
+let authMode="login";
 
-/* AUTH */
+/* TOGGLE */
 window.toggleMode=()=>{
   authMode=authMode==="login"?"signup":"login";
   authTitle.textContent=authMode==="login"?"Login":"Create account";
@@ -162,129 +71,74 @@ window.toggleMode=()=>{
     ?"New here? Create an account":"Already have an account? Login";
 };
 
+/* LOGIN / SIGNUP */
 window.submitAuth=async()=>{
   if(authMode==="signup"){
-    await supabase.auth.signUp({
+    const { error } = await supabase.auth.signUp({
       email:email.value,
       password:password.value,
       options:{data:{full_name:nameInput.value}}
     });
+    if(error) return alert(error.message);
+    alert("Account created. Now login.");
     toggleMode();
-  }else{
-    const {error}=await supabase.auth.signInWithPassword({
-      email:email.value,password:password.value
-    });
-    if(!error)initApp();
+    return;
   }
+
+  const { data, error } = await supabase.auth.signInWithPassword({
+    email:email.value,password:password.value
+  });
+  if(error) return alert(error.message);
+  if(!data.session) return alert("No session");
+
+  initApp();
 };
 
-window.logout=async()=>{await supabase.auth.signOut();location.reload();};
+/* RESET EMAIL */
+window.resetPassword=async()=>{
+  if(!email.value) return alert("Enter email first");
+  const { error } = await supabase.auth.resetPasswordForEmail(
+    email.value,
+    { redirectTo: location.origin }
+  );
+  if(error) return alert(error.message);
+  alert("Password reset email sent");
+};
 
-/* INIT */
+/* UPDATE PASSWORD */
+window.updatePassword=async()=>{
+  const { error } = await supabase.auth.updateUser({
+    password:newPassword.value
+  });
+  if(error) return alert(error.message);
+  alert("Password updated");
+  location.reload();
+};
+
+/* INIT APP */
 async function initApp(){
   authPage.style.display="none";
   app.style.display="block";
-  const {data:{user}}=await supabase.auth.getUser();
+  const { data:{ user } } = await supabase.auth.getUser();
   welcome.textContent=`👋 Hi, ${user.user_metadata.full_name||"Student"}`;
-  buildTable();
-  loadClasses();
 }
 
-/* DATA */
-async function loadClasses(){
-  const {data:{user}}=await supabase.auth.getUser();
-  const {data}=await supabase
-    .from("classes")
-    .select("*")
-    .eq("user_id",user.id);
-
-  classes=data||[];
-  renderClasses();
-}
-
-/* TABLE */
-function buildTable(){
-  table.innerHTML="<tr><th>Day</th>"+
-    [...Array(5)].map((_,i)=>`<th>${8+i*2}:00–${10+i*2}:00</th>`).join("")+
-    "</tr>";
-
-  DAYS.forEach(d=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`<td class="day-col">${d}</td>`;
-    for(let h=8;h<18;h+=2){
-      const td=document.createElement("td");
-      td.className="slot";
-      td.dataset.day=d;
-      td.dataset.start=`${String(h).padStart(2,"0")}:00`;
-      td.onclick=()=>openNewClass(td);
-      tr.appendChild(td);
-    }
-    table.appendChild(tr);
-  });
-}
-
-function renderClasses(){
-  document.querySelectorAll(".slot").forEach(s=>s.innerHTML="");
-  classes.forEach(c=>{
-    const slot=document.querySelector(
-      `.slot[data-day="${c.day}"][data-start="${c.start_time.slice(0,2)}:00"]`
-    );
-    if(!slot)return;
-    const div=document.createElement("div");
-    div.className="class-block";
-    div.dataset.id=c.id;
-    div.style.background=c.color;
-    div.innerHTML=`<div class="class-title">${c.title}</div><div class="timer"></div>`;
-    div.onclick=e=>{e.stopPropagation();openEditClass(c)};
-    slot.appendChild(div);
-  });
-}
-
-/* MODAL */
-function openNewClass(td){
-  activeClass=null;
-  activeSlot={day:td.dataset.day,start:td.dataset.start};
-  modalTitle.textContent="Add class";
-  classModal.style.display="flex";
-}
-function openEditClass(c){
-  activeClass=c;
-  modalTitle.textContent="Edit class";
-  mTitle.value=c.title;
-  mStart.value=c.start_time;
-  mEnd.value=c.end_time;
-  classModal.style.display="flex";
-}
-window.closeModal=()=>classModal.style.display="none";
-
-/* SAVE */
-window.saveClass=async()=>{
-  const {data:{user}}=await supabase.auth.getUser();
-  const base={
-    user_id:user.id,
-    day:activeClass?activeClass.day:activeSlot.day,
-    title:mTitle.value,
-    start_time:mStart.value,
-    end_time:mEnd.value,
-    color:"#c7d2fe"
-  };
-  if(activeClass)
-    await supabase.from("classes").update(base).eq("id",activeClass.id);
-  else
-    await supabase.from("classes").insert(base);
-
-  closeModal();loadClasses();
+/* LOGOUT */
+window.logout=async()=>{
+  await supabase.auth.signOut();
+  location.reload();
 };
 
-window.deleteClass=async()=>{
-  if(!activeClass)return;
-  await supabase.from("classes").delete().eq("id",activeClass.id);
-  closeModal();loadClasses();
-};
-
-/* AUTO LOGIN */
-const {data:{session}}=await supabase.auth.getSession();
-if(session)initApp();
+/* SESSION CHECK (PASSWORD RESET HANDLER) */
+const { data:{ session } } = await supabase.auth.getSession();
+if(session){
+  if(location.hash.includes("type=recovery")){
+    authPage.style.display="none";
+    resetPage.style.display="block";
+  } else {
+    initApp();
+  }
+}
 </script>
 
 </body>
