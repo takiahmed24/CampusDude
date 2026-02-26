@@ -12,7 +12,6 @@ body{
   font-family:system-ui,sans-serif;
   background:linear-gradient(135deg,#667eea,#764ba2);
 }
-.hidden{display:none}
 
 /* HEADER */
 .header{
@@ -31,6 +30,7 @@ body{
   border-left:6px solid #f59e0b;
   border-radius:14px;
   padding:16px;
+  font-weight:700;
 }
 
 /* TABLE */
@@ -44,19 +44,49 @@ table{
 th,td{
   border:1px solid #e5e7eb;
   text-align:center;
-  padding:12px;
 }
-th{background:#1f2937;color:#fff}
-.day{background:#1f2937;color:#fff;font-weight:700;width:120px}
+th{
+  background:#1f2937;
+  color:#fff;
+  padding:10px;
+}
+.day{
+  background:#1f2937;
+  color:#fff;
+  font-weight:700;
+  width:120px;
+}
 
-/* CELLS */
+/* SLOT */
 .cell{
-  border-radius:12px;
-  padding:12px;
+  position:relative;
   height:120px;
+  padding:0;
+}
+.gap{
+  background:#ffd6d6;
+  color:#7f1d1d;
+  font-weight:700;
+  height:100%;
+  display:flex;
+  align-items:center;
+  justify-content:center;
   cursor:pointer;
 }
-.gap{background:#ffd6d6;font-weight:700;color:#7f1d1d}
+
+/* CLASS BLOCK */
+.block{
+  position:absolute;
+  left:6px;
+  right:6px;
+  border-radius:12px;
+  padding:8px;
+  font-size:13px;
+  color:#111;
+  box-shadow:0 4px 10px rgba(0,0,0,.2);
+  transition:height .6s linear;
+  cursor:pointer;
+}
 .timer{
   display:inline-block;
   margin-top:6px;
@@ -66,22 +96,41 @@ th{background:#1f2937;color:#fff}
   font-size:12px;
   font-weight:700;
 }
-.next{outline:3px solid #f59e0b}
+
+/* ACTIVE PULSE */
+@keyframes pulseGlow{
+  0%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}
+  70%{box-shadow:0 0 0 12px rgba(245,158,11,0)}
+  100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}
+}
+.block.active{
+  animation:pulseGlow 1.8s infinite;
+  z-index:5;
+}
 
 /* MODAL */
 .modal{
   position:fixed;inset:0;
   background:rgba(0,0,0,.5);
-  display:none;align-items:center;justify-content:center
+  display:none;
+  align-items:center;
+  justify-content:center;
 }
 .modal>div{
   background:#fff;
   border-radius:14px;
   padding:20px;
-  width:340px
+  width:340px;
 }
-input{width:100%;padding:8px;margin-bottom:8px}
-.actions{display:flex;gap:8px}
+input{
+  width:100%;
+  padding:8px;
+  margin-bottom:8px;
+}
+.actions{
+  display:flex;
+  gap:8px;
+}
 button{
   flex:1;
   padding:10px;
@@ -90,7 +139,7 @@ button{
   background:#4f46e5;
   color:#fff;
   font-weight:700;
-  cursor:pointer
+  cursor:pointer;
 }
 </style>
 </head>
@@ -109,7 +158,8 @@ button{
   <div>
     <h3 id="modalTitle"></h3>
     <input id="mTitle" placeholder="Class name">
-    <input id="mRoom" placeholder="Room">
+    <input id="mSection" placeholder="Section (optional)">
+    <input id="mRoom" placeholder="Room (optional)">
     <input id="mStart" type="time">
     <input id="mEnd" type="time">
     <div class="actions">
@@ -123,7 +173,7 @@ button{
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-/* 🔐 SUPABASE */
+/* SUPABASE */
 const supabase = createClient(
   "https://uwjnbbmbxxodiwrleozc.supabase.co",
   "sb_publishable_OINdv3b3c9-SRUr7ngWVlA_iPXM89of"
@@ -142,29 +192,43 @@ let classes=[];
 let active=null;
 let activeSlot=null;
 
-/* LOAD DATA */
+/* HELPERS */
+const toMin=t=>{
+  const [h,m]=t.split(":").map(Number);
+  return h*60+m;
+};
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+function colorFromSection(section){
+  if(!section) return "#e5e7eb";
+  let hash=0;
+  for(let c of section) hash=c.charCodeAt(0)+((hash<<5)-hash);
+  const colors=["#c7d2fe","#bbf7d0","#fde68a","#fecaca","#ddd6fe","#bae6fd"];
+  return colors[Math.abs(hash)%colors.length];
+}
+
+/* LOAD */
 async function load(){
-  const { data:{ user } } = await supabase.auth.getUser();
-  const { data } = await supabase
+  const {data:{user}}=await supabase.auth.getUser();
+  const {data}=await supabase
     .from("classes")
     .select("*")
     .eq("user_id",user.id);
-
   classes=data||[];
   render();
-  startCountdown();
 }
+load();
 
-/* BUILD MATRIX */
-function matrix(){
+/* MATRIX */
+function buildMatrix(){
   const m={};
   DAYS.forEach(d=>{
     m[d]=SLOTS.map(([s,e])=>{
-      return classes.find(c=>
-        c.day===d &&
-        c.start_time===s &&
-        c.end_time===e
-      ) || {gap:true,day:d,start:s,end:e};
+      return classes.find(c=>{
+        const cs=toMin(c.start_time);
+        const ce=toMin(c.end_time);
+        return c.day===d && ce>toMin(s) && cs<toMin(e);
+      })||{gap:true,day:d,start:s,end:e};
     });
   });
   return m;
@@ -172,7 +236,7 @@ function matrix(){
 
 /* RENDER */
 function render(){
-  const m=matrix();
+  const matrix=buildMatrix();
   table.innerHTML=`
     <tr>
       <th>Day</th>
@@ -180,21 +244,48 @@ function render(){
     </tr>
   `;
 
-  Object.entries(m).forEach(([day,cells])=>{
+  Object.entries(matrix).forEach(([day,cells])=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`<td class="day">${day}</td>`;
 
-    cells.forEach(cell=>{
+    cells.forEach((cell,i)=>{
       const td=document.createElement("td");
+      const slotStart=toMin(SLOTS[i][0]);
+      const slotEnd=toMin(SLOTS[i][1]);
+
       if(cell.gap){
-        td.innerHTML=`<div class="cell gap">gap</div>`;
-        td.onclick=()=>openNew(cell);
+        const div=document.createElement("div");
+        div.className="gap";
+        div.textContent="gap";
+        div.onclick=()=>openNew({day,start:SLOTS[i][0],end:SLOTS[i][1]});
+        td.appendChild(div);
       }else{
+        const cs=toMin(cell.start_time);
+        const ce=toMin(cell.end_time);
+        const vs=Math.max(cs,slotStart);
+        const ve=Math.min(ce,slotEnd);
+
+        const top=((vs-slotStart)/(slotEnd-slotStart))*100;
+        const height=((ve-vs)/(slotEnd-slotStart))*100;
+
         td.innerHTML=`
-          <div class="cell" style="background:${cell.color}">
-            <b>${cell.title}</b><br>
-            Room: ${cell.room}
-            <div class="timer" data-id="${cell.id}"></div>
+          <div class="cell">
+            <div class="block"
+              data-id="${cell.id}"
+              data-start="${cell.start_time}"
+              data-end="${cell.end_time}"
+              data-slot-start="${SLOTS[i][0]}"
+              data-slot-end="${SLOTS[i][1]}"
+              style="
+                top:${top}%;
+                height:${height}%;
+                background:${cell.color};
+              ">
+              <b>${cell.title}</b><br>
+              ${cell.section?`[${cell.section}]<br>`:""}
+              ${cell.room?`Room: ${cell.room}`:""}
+              <div class="timer"></div>
+            </div>
           </div>
         `;
         td.onclick=()=>openEdit(cell);
@@ -205,42 +296,36 @@ function render(){
   });
 }
 
-/* COUNTDOWN */
-function startCountdown(){
-  setInterval(()=>{
-    const now=new Date();
-    let nearest=null;
+/* LIVE ANIMATION + COUNTDOWN */
+setInterval(()=>{
+  const now=new Date();
+  const nowMin=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+  let next=null;
 
-    classes.forEach(c=>{
-      const [h,m]=c.start_time.split(":");
-      const d=new Date();
-      d.setHours(h,m,0,0);
-      const diff=d-now;
-      if(diff>0 && (!nearest||diff<nearest.diff))
-        nearest={c,diff};
-    });
+  document.querySelectorAll(".block").forEach(b=>{
+    const cs=toMin(b.dataset.start);
+    const ce=toMin(b.dataset.end);
+    const ss=toMin(b.dataset.slotStart);
+    const se=toMin(b.dataset.slotEnd);
 
-    document.querySelectorAll(".timer").forEach(t=>t.textContent="");
-    document.querySelectorAll(".cell").forEach(c=>c.classList.remove("next"));
-
-    if(nearest){
-      const mins=Math.floor(nearest.diff/60000);
-      document
-        .querySelector(`[data-id="${nearest.c.id}"]`)
-        .textContent=`${mins} min`;
-      document
-        .querySelector(`[data-id="${nearest.c.id}"]`)
-        .closest(".cell")
-        .classList.add("next");
-
-      nextCard.innerHTML=`
-        <b>NEXT UPCOMING CLASS</b><br>
-        <b>${nearest.c.title}</b><br>
-        ${nearest.c.day} • ${nearest.c.start_time} – ${nearest.c.end_time}
-      `;
+    if(nowMin>cs){
+      const elapsed=clamp(nowMin-cs,0,ce-cs);
+      const visible=clamp(elapsed-(Math.max(cs,ss)-cs),0,Math.min(ce,se)-Math.max(cs,ss));
+      b.style.height=(visible/(se-ss))*100+"%";
     }
-  },1000);
-}
+
+    if(nowMin>=cs&&nowMin<=ce) b.classList.add("active");
+    else b.classList.remove("active");
+
+    const diff=cs-nowMin;
+    if(diff>0&&( !next||diff<next.diff))
+      next={title:b.querySelector("b").textContent,day:b.closest("tr").firstChild.textContent,diff};
+  });
+
+  if(next){
+    nextCard.textContent=`NEXT: ${next.title} in ${Math.floor(next.diff)} min`;
+  }
+},1000);
 
 /* MODAL */
 function openNew(slot){
@@ -248,35 +333,38 @@ function openNew(slot){
   activeSlot=slot;
   modalTitle.textContent="Add class";
   mTitle.value="";
+  mSection.value="";
   mRoom.value="";
   mStart.value=slot.start;
   mEnd.value=slot.end;
   modal.style.display="flex";
 }
-
 function openEdit(c){
   active=c;
   modalTitle.textContent="Edit class";
   mTitle.value=c.title;
-  mRoom.value=c.room;
+  mSection.value=c.section||"";
+  mRoom.value=c.room||"";
   mStart.value=c.start_time;
   mEnd.value=c.end_time;
   modal.style.display="flex";
 }
-
 window.closeModal=()=>modal.style.display="none";
 
 /* SAVE / DELETE */
 window.saveClass=async()=>{
-  const { data:{ user } } = await supabase.auth.getUser();
+  const {data:{user}}=await supabase.auth.getUser();
+  const section=mSection.value||null;
+
   const base={
     user_id:user.id,
     title:mTitle.value,
-    room:mRoom.value,
+    section,
+    room:mRoom.value||null,
     start_time:mStart.value,
     end_time:mEnd.value,
     day:active?active.day:activeSlot.day,
-    color:active?.color||"#c7d2fe"
+    color:colorFromSection(section)
   };
 
   if(active)
@@ -294,10 +382,6 @@ window.deleteClass=async()=>{
   closeModal();
   load();
 };
-
-/* SESSION */
-const { data:{ session } } = await supabase.auth.getSession();
-if(session) load();
 </script>
 
 </body>
