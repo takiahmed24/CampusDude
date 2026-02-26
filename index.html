@@ -13,144 +13,88 @@ body{
   background:linear-gradient(135deg,#667eea,#764ba2);
 }
 
-/* HEADER */
-.header{
-  text-align:center;
-  padding:22px;
-  font-size:28px;
-  font-weight:800;
-  color:#fff;
+/* AUTH */
+.auth{
+  max-width:360px;
+  margin:80px auto;
+  background:#fff;
+  border-radius:16px;
+  padding:24px;
+  box-shadow:0 20px 40px rgba(0,0,0,.25)
 }
+.auth input{width:100%;padding:10px;margin-bottom:10px;border-radius:10px;border:1px solid #ddd}
+.auth button{width:100%;padding:10px;border:none;border-radius:999px;font-weight:700;background:#4f46e5;color:#fff}
+.link{text-align:center;font-size:13px;color:#4f46e5;cursor:pointer}
+.hidden{display:none}
 
-/* NEXT CARD */
+/* HEADER */
+.header{text-align:center;padding:22px;font-size:28px;font-weight:800;color:#fff}
+
+/* NEXT */
 #nextCard{
-  max-width:900px;
-  margin:0 auto 16px;
-  background:#fff7ed;
-  border-left:6px solid #f59e0b;
-  border-radius:14px;
-  padding:16px;
-  font-weight:700;
+  max-width:900px;margin:0 auto 16px;
+  background:#fff7ed;border-left:6px solid #f59e0b;
+  border-radius:14px;padding:16px;font-weight:700
 }
 
 /* TABLE */
 .wrap{overflow-x:auto;padding:0 12px 40px}
-table{
-  width:100%;
-  min-width:1100px;
-  border-collapse:collapse;
-  background:#fff;
-}
-th,td{
-  border:1px solid #e5e7eb;
-  text-align:center;
-}
-th{
-  background:#1f2937;
-  color:#fff;
-  padding:10px;
-}
-.day{
-  background:#1f2937;
-  color:#fff;
-  font-weight:700;
-  width:120px;
-}
+table{width:100%;min-width:1100px;border-collapse:collapse;background:#fff}
+th,td{border:1px solid #e5e7eb;text-align:center}
+th{background:#1f2937;color:#fff;padding:10px}
+.day{background:#1f2937;color:#fff;font-weight:700;width:120px}
 
 /* SLOT */
-.cell{
-  position:relative;
-  height:120px;
-  padding:0;
-}
+.cell{position:relative;height:120px}
 .gap{
-  background:#ffd6d6;
-  color:#7f1d1d;
-  font-weight:700;
-  height:100%;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
+  background:#ffd6d6;color:#7f1d1d;font-weight:700;
+  height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer
 }
 
-/* CLASS BLOCK */
+/* BLOCK */
 .block{
-  position:absolute;
-  left:6px;
-  right:6px;
-  border-radius:12px;
-  padding:8px;
-  font-size:13px;
-  color:#111;
+  position:absolute;left:6px;right:6px;
+  border-radius:12px;padding:8px;
   box-shadow:0 4px 10px rgba(0,0,0,.2);
-  transition:height .6s linear;
-  cursor:pointer;
+  transition:height .6s linear;cursor:pointer
 }
-.timer{
-  display:inline-block;
-  margin-top:6px;
-  padding:4px 10px;
-  border-radius:999px;
-  background:#fff;
-  font-size:12px;
-  font-weight:700;
-}
+.timer{margin-top:6px;padding:4px 10px;background:#fff;border-radius:999px;font-size:12px}
 
-/* ACTIVE PULSE */
+/* PULSE */
 @keyframes pulseGlow{
   0%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}
   70%{box-shadow:0 0 0 12px rgba(245,158,11,0)}
   100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}
 }
-.block.active{
-  animation:pulseGlow 1.8s infinite;
-  z-index:5;
-}
+.block.active{animation:pulseGlow 1.8s infinite;z-index:5}
 
 /* MODAL */
-.modal{
-  position:fixed;inset:0;
-  background:rgba(0,0,0,.5);
-  display:none;
-  align-items:center;
-  justify-content:center;
-}
-.modal>div{
-  background:#fff;
-  border-radius:14px;
-  padding:20px;
-  width:340px;
-}
-input{
-  width:100%;
-  padding:8px;
-  margin-bottom:8px;
-}
-.actions{
-  display:flex;
-  gap:8px;
-}
-button{
-  flex:1;
-  padding:10px;
-  border:none;
-  border-radius:999px;
-  background:#4f46e5;
-  color:#fff;
-  font-weight:700;
-  cursor:pointer;
-}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.5);display:none;align-items:center;justify-content:center}
+.modal>div{background:#fff;border-radius:14px;padding:20px;width:340px}
+.modal input{width:100%;padding:8px;margin-bottom:8px}
+.actions{display:flex;gap:8px}
+.modal button{flex:1;padding:10px;border:none;border-radius:999px;background:#4f46e5;color:#fff;font-weight:700}
 </style>
 </head>
 
 <body>
 
-<div class="header">🎓 CampusDude</div>
-<div id="nextCard"></div>
+<!-- AUTH -->
+<div id="auth" class="auth hidden">
+  <h2 id="authTitle">Login</h2>
+  <input id="name" placeholder="Name" class="hidden">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="submitAuth()">Continue</button>
+  <div class="link" onclick="toggleAuth()" id="switchText">New here? Create account</div>
+  <div class="link" onclick="resetPass()">Forgot password?</div>
+</div>
 
-<div class="wrap">
-  <table id="table"></table>
+<!-- APP -->
+<div id="app" class="hidden">
+  <div class="header">🎓 CampusDude</div>
+  <div id="nextCard"></div>
+  <div class="wrap"><table id="table"></table></div>
 </div>
 
 <!-- MODAL -->
@@ -172,123 +116,94 @@ button{
 
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-/* SUPABASE */
-const supabase = createClient(
+const supabase=createClient(
   "https://uwjnbbmbxxodiwrleozc.supabase.co",
   "sb_publishable_OINdv3b3c9-SRUr7ngWVlA_iPXM89of"
 );
 
+/* AUTH */
+let mode="login";
+window.toggleAuth=()=>{
+  mode=mode==="login"?"signup":"login";
+  authTitle.textContent=mode==="login"?"Login":"Create account";
+  name.classList.toggle("hidden",mode==="login");
+  switchText.textContent=mode==="login"?"New here? Create account":"Already have an account?";
+};
+window.submitAuth=async()=>{
+  if(mode==="signup"){
+    const {error}=await supabase.auth.signUp({
+      email:email.value,password:password.value,
+      options:{data:{full_name:name.value}}
+    });
+    if(error) return alert(error.message);
+    toggleAuth(); return;
+  }
+  const {error}=await supabase.auth.signInWithPassword({email:email.value,password:password.value});
+  if(error) return alert(error.message);
+  init();
+};
+window.resetPass=async()=>{
+  await supabase.auth.resetPasswordForEmail(email.value,{redirectTo:location.origin});
+  alert("Reset email sent");
+};
+
 /* CONFIG */
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday"];
-const SLOTS=[
-  ["08:00","10:20"],
-  ["10:20","12:40"],
-  ["12:40","14:10"],
-  ["14:40","16:10"]
-];
-
-let classes=[];
-let active=null;
-let activeSlot=null;
+const SLOTS=[["08:00","10:20"],["10:20","12:40"],["12:40","14:10"],["14:40","16:10"]];
+let classes=[],active=null,activeSlot=null;
 
 /* HELPERS */
-const toMin=t=>{
-  const [h,m]=t.split(":").map(Number);
-  return h*60+m;
-};
+const toMin=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
 const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const colorFromSection=s=>{
+  if(!s) return "#e5e7eb";
+  let h=0;for(let c of s)h=c.charCodeAt(0)+((h<<5)-h);
+  const cols=["#c7d2fe","#bbf7d0","#fde68a","#fecaca","#ddd6fe","#bae6fd"];
+  return cols[Math.abs(h)%cols.length];
+};
 
-function colorFromSection(section){
-  if(!section) return "#e5e7eb";
-  let hash=0;
-  for(let c of section) hash=c.charCodeAt(0)+((hash<<5)-hash);
-  const colors=["#c7d2fe","#bbf7d0","#fde68a","#fecaca","#ddd6fe","#bae6fd"];
-  return colors[Math.abs(hash)%colors.length];
+/* INIT */
+async function init(){
+  auth.classList.add("hidden");
+  app.classList.remove("hidden");
+  load();
 }
+const {data:{session}}=await supabase.auth.getSession();
+session?init():auth.classList.remove("hidden");
 
 /* LOAD */
 async function load(){
   const {data:{user}}=await supabase.auth.getUser();
-  const {data}=await supabase
-    .from("classes")
-    .select("*")
-    .eq("user_id",user.id);
+  const {data}=await supabase.from("classes").select("*").eq("user_id",user.id);
   classes=data||[];
   render();
-}
-load();
-
-/* MATRIX */
-function buildMatrix(){
-  const m={};
-  DAYS.forEach(d=>{
-    m[d]=SLOTS.map(([s,e])=>{
-      return classes.find(c=>{
-        const cs=toMin(c.start_time);
-        const ce=toMin(c.end_time);
-        return c.day===d && ce>toMin(s) && cs<toMin(e);
-      })||{gap:true,day:d,start:s,end:e};
-    });
-  });
-  return m;
 }
 
 /* RENDER */
 function render(){
-  const matrix=buildMatrix();
-  table.innerHTML=`
-    <tr>
-      <th>Day</th>
-      ${SLOTS.map(s=>`<th>${s[0]} – ${s[1]}</th>`).join("")}
-    </tr>
-  `;
-
-  Object.entries(matrix).forEach(([day,cells])=>{
+  table.innerHTML=`<tr><th>Day</th>${SLOTS.map(s=>`<th>${s[0]}–${s[1]}</th>`).join("")}</tr>`;
+  DAYS.forEach(day=>{
     const tr=document.createElement("tr");
     tr.innerHTML=`<td class="day">${day}</td>`;
-
-    cells.forEach((cell,i)=>{
+    SLOTS.forEach(([ss,se])=>{
       const td=document.createElement("td");
-      const slotStart=toMin(SLOTS[i][0]);
-      const slotEnd=toMin(SLOTS[i][1]);
-
-      if(cell.gap){
-        const div=document.createElement("div");
-        div.className="gap";
-        div.textContent="gap";
-        div.onclick=()=>openNew({day,start:SLOTS[i][0],end:SLOTS[i][1]});
-        td.appendChild(div);
+      const c=classes.find(x=>x.day===day&&toMin(x.end_time)>toMin(ss)&&toMin(x.start_time)<toMin(se));
+      if(!c){
+        const g=document.createElement("div");
+        g.className="gap";g.textContent="gap";
+        g.onclick=()=>openNew({day,start:ss,end:se});
+        td.appendChild(g);
       }else{
-        const cs=toMin(cell.start_time);
-        const ce=toMin(cell.end_time);
-        const vs=Math.max(cs,slotStart);
-        const ve=Math.min(ce,slotEnd);
-
-        const top=((vs-slotStart)/(slotEnd-slotStart))*100;
-        const height=((ve-vs)/(slotEnd-slotStart))*100;
-
-        td.innerHTML=`
-          <div class="cell">
-            <div class="block"
-              data-id="${cell.id}"
-              data-start="${cell.start_time}"
-              data-end="${cell.end_time}"
-              data-slot-start="${SLOTS[i][0]}"
-              data-slot-end="${SLOTS[i][1]}"
-              style="
-                top:${top}%;
-                height:${height}%;
-                background:${cell.color};
-              ">
-              <b>${cell.title}</b><br>
-              ${cell.section?`[${cell.section}]<br>`:""}
-              ${cell.room?`Room: ${cell.room}`:""}
-              <div class="timer"></div>
-            </div>
-          </div>
-        `;
-        td.onclick=()=>openEdit(cell);
+        const cs=toMin(c.start_time),ce=toMin(c.end_time);
+        const top=((Math.max(cs,toMin(ss))-toMin(ss))/(toMin(se)-toMin(ss)))*100;
+        const h=((Math.min(ce,toMin(se))-Math.max(cs,toMin(ss)))/(toMin(se)-toMin(ss)))*100;
+        td.innerHTML=`<div class="cell"><div class="block"
+          data-id="${c.id}" data-start="${c.start_time}" data-end="${c.end_time}"
+          data-slot-start="${ss}" data-slot-end="${se}"
+          style="top:${top}%;height:${h}%;background:${c.color}">
+          <b>${c.title}</b><br>${c.section?`[${c.section}]<br>`:""}${c.room?`Room:${c.room}`:""}
+          <div class="timer"></div></div></div>`;
+        td.onclick=()=>openEdit(c);
       }
       tr.appendChild(td);
     });
@@ -296,91 +211,47 @@ function render(){
   });
 }
 
-/* LIVE ANIMATION + COUNTDOWN */
+/* LIVE LOOP */
 setInterval(()=>{
-  const now=new Date();
-  const nowMin=now.getHours()*60+now.getMinutes()+now.getSeconds()/60;
+  const nowMin=new Date().getHours()*60+new Date().getMinutes()+new Date().getSeconds()/60;
   let next=null;
-
   document.querySelectorAll(".block").forEach(b=>{
-    const cs=toMin(b.dataset.start);
-    const ce=toMin(b.dataset.end);
-    const ss=toMin(b.dataset.slotStart);
-    const se=toMin(b.dataset.slotEnd);
-
+    const cs=toMin(b.dataset.start),ce=toMin(b.dataset.end);
+    const ss=toMin(b.dataset.slotStart),se=toMin(b.dataset.slotEnd);
     if(nowMin>cs){
       const elapsed=clamp(nowMin-cs,0,ce-cs);
-      const visible=clamp(elapsed-(Math.max(cs,ss)-cs),0,Math.min(ce,se)-Math.max(cs,ss));
-      b.style.height=(visible/(se-ss))*100+"%";
+      const vis=clamp(elapsed-(Math.max(cs,ss)-cs),0,Math.min(ce,se)-Math.max(cs,ss));
+      b.style.height=(vis/(se-ss))*100+"%";
     }
-
-    if(nowMin>=cs&&nowMin<=ce) b.classList.add("active");
-    else b.classList.remove("active");
-
+    b.classList.toggle("active",nowMin>=cs&&nowMin<=ce);
     const diff=cs-nowMin;
-    if(diff>0&&( !next||diff<next.diff))
-      next={title:b.querySelector("b").textContent,day:b.closest("tr").firstChild.textContent,diff};
+    if(diff>0&&(!next||diff<next.diff))next={t:b.querySelector("b").textContent,d:diff};
   });
-
-  if(next){
-    nextCard.textContent=`NEXT: ${next.title} in ${Math.floor(next.diff)} min`;
-  }
+  if(next) nextCard.textContent=`NEXT: ${next.t} in ${Math.floor(next.d)} min`;
 },1000);
 
 /* MODAL */
-function openNew(slot){
-  active=null;
-  activeSlot=slot;
-  modalTitle.textContent="Add class";
-  mTitle.value="";
-  mSection.value="";
-  mRoom.value="";
-  mStart.value=slot.start;
-  mEnd.value=slot.end;
-  modal.style.display="flex";
-}
-function openEdit(c){
-  active=c;
-  modalTitle.textContent="Edit class";
-  mTitle.value=c.title;
-  mSection.value=c.section||"";
-  mRoom.value=c.room||"";
-  mStart.value=c.start_time;
-  mEnd.value=c.end_time;
-  modal.style.display="flex";
-}
+function openNew(s){active=null;activeSlot=s;modalTitle.textContent="Add class";
+  mTitle.value="";mSection.value="";mRoom.value="";
+  mStart.value=s.start;mEnd.value=s.end;modal.style.display="flex";}
+function openEdit(c){active=c;modalTitle.textContent="Edit class";
+  mTitle.value=c.title;mSection.value=c.section||"";mRoom.value=c.room||"";
+  mStart.value=c.start_time;mEnd.value=c.end_time;modal.style.display="flex";}
 window.closeModal=()=>modal.style.display="none";
 
-/* SAVE / DELETE */
+/* SAVE */
 window.saveClass=async()=>{
   const {data:{user}}=await supabase.auth.getUser();
-  const section=mSection.value||null;
-
-  const base={
-    user_id:user.id,
-    title:mTitle.value,
-    section,
-    room:mRoom.value||null,
-    start_time:mStart.value,
-    end_time:mEnd.value,
-    day:active?active.day:activeSlot.day,
-    color:colorFromSection(section)
-  };
-
-  if(active)
-    await supabase.from("classes").update(base).eq("id",active.id);
-  else
-    await supabase.from("classes").insert(base);
-
-  closeModal();
-  load();
+  const sec=mSection.value||null;
+  const base={user_id:user.id,title:mTitle.value,section:sec,room:mRoom.value||null,
+    start_time:mStart.value,end_time:mEnd.value,
+    day:active?active.day:activeSlot.day,color:colorFromSection(sec)};
+  active?await supabase.from("classes").update(base).eq("id",active.id)
+        :await supabase.from("classes").insert(base);
+  closeModal();load();
 };
-
 window.deleteClass=async()=>{
-  if(!active) return;
-  await supabase.from("classes").delete().eq("id",active.id);
-  closeModal();
-  load();
+  if(active){await supabase.from("classes").delete().eq("id",active.id);closeModal();load();}
 };
 </script>
 
