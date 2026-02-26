@@ -6,139 +6,298 @@
 <title>CampusDude</title>
 
 <style>
+*{box-sizing:border-box}
 body{
+  margin:0;
   font-family:system-ui,sans-serif;
   background:linear-gradient(135deg,#667eea,#764ba2);
-  margin:0;padding:20px;
 }
-.card{
-  max-width:360px;margin:80px auto;
-  background:#fff;border-radius:16px;
-  padding:24px;box-shadow:0 20px 40px rgba(0,0,0,.25)
+.hidden{display:none}
+
+/* HEADER */
+.header{
+  text-align:center;
+  padding:22px;
+  font-size:28px;
+  font-weight:800;
+  color:#fff;
 }
-input{width:100%;padding:10px;margin-bottom:10px;border-radius:10px;border:1px solid #ddd}
+
+/* NEXT CARD */
+#nextCard{
+  max-width:900px;
+  margin:0 auto 16px;
+  background:#fff7ed;
+  border-left:6px solid #f59e0b;
+  border-radius:14px;
+  padding:16px;
+}
+
+/* TABLE */
+.wrap{overflow-x:auto;padding:0 12px 40px}
+table{
+  width:100%;
+  min-width:1100px;
+  border-collapse:collapse;
+  background:#fff;
+}
+th,td{
+  border:1px solid #e5e7eb;
+  text-align:center;
+  padding:12px;
+}
+th{background:#1f2937;color:#fff}
+.day{background:#1f2937;color:#fff;font-weight:700;width:120px}
+
+/* CELLS */
+.cell{
+  border-radius:12px;
+  padding:12px;
+  height:120px;
+  cursor:pointer;
+}
+.gap{background:#ffd6d6;font-weight:700;color:#7f1d1d}
+.timer{
+  display:inline-block;
+  margin-top:6px;
+  padding:4px 10px;
+  border-radius:999px;
+  background:#fff;
+  font-size:12px;
+  font-weight:700;
+}
+.next{outline:3px solid #f59e0b}
+
+/* MODAL */
+.modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;align-items:center;justify-content:center
+}
+.modal>div{
+  background:#fff;
+  border-radius:14px;
+  padding:20px;
+  width:340px
+}
+input{width:100%;padding:8px;margin-bottom:8px}
+.actions{display:flex;gap:8px}
 button{
-  width:100%;padding:10px;border-radius:999px;
-  border:none;font-weight:700;background:#4f46e5;color:#fff;cursor:pointer
+  flex:1;
+  padding:10px;
+  border:none;
+  border-radius:999px;
+  background:#4f46e5;
+  color:#fff;
+  font-weight:700;
+  cursor:pointer
 }
-.link{font-size:13px;text-align:center;color:#4f46e5;cursor:pointer;margin-top:6px}
-#app{display:none;color:#fff}
 </style>
 </head>
 
 <body>
 
-<!-- AUTH -->
-<div id="authPage" class="card">
-  <h2 id="authTitle">Login</h2>
-  <input id="nameInput" placeholder="Your name" style="display:none">
-  <input id="email" placeholder="Email">
-  <input id="password" type="password" placeholder="Password">
-  <button onclick="submitAuth()">Continue</button>
-  <div class="link" onclick="toggleMode()" id="switchText">New here? Create an account</div>
-  <div class="link" onclick="resetPassword()">Forgot password?</div>
+<div class="header">🎓 CampusDude</div>
+<div id="nextCard"></div>
+
+<div class="wrap">
+  <table id="table"></table>
 </div>
 
-<!-- RESET PASSWORD -->
-<div id="resetPage" class="card" style="display:none">
-  <h2>Reset password</h2>
-  <input id="newPassword" type="password" placeholder="New password">
-  <button onclick="updatePassword()">Update password</button>
-</div>
-
-<!-- APP -->
-<div id="app">
-  <h2 id="welcome"></h2>
-  <button onclick="logout()">Logout</button>
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div>
+    <h3 id="modalTitle"></h3>
+    <input id="mTitle" placeholder="Class name">
+    <input id="mRoom" placeholder="Room">
+    <input id="mStart" type="time">
+    <input id="mEnd" type="time">
+    <div class="actions">
+      <button onclick="saveClass()">Save</button>
+      <button onclick="deleteClass()">Delete</button>
+      <button onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
+/* 🔐 SUPABASE */
 const supabase = createClient(
   "https://uwjnbbmbxxodiwrleozc.supabase.co",
   "sb_publishable_OINdv3b3c9-SRUr7ngWVlA_iPXM89of"
 );
 
-let authMode="login";
+/* CONFIG */
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday"];
+const SLOTS=[
+  ["08:00","10:20"],
+  ["10:20","12:40"],
+  ["12:40","14:10"],
+  ["14:40","16:10"]
+];
 
-/* TOGGLE */
-window.toggleMode=()=>{
-  authMode=authMode==="login"?"signup":"login";
-  authTitle.textContent=authMode==="login"?"Login":"Create account";
-  nameInput.style.display=authMode==="signup"?"block":"none";
-  switchText.textContent=authMode==="login"
-    ?"New here? Create an account":"Already have an account? Login";
-};
+let classes=[];
+let active=null;
+let activeSlot=null;
 
-/* LOGIN / SIGNUP */
-window.submitAuth=async()=>{
-  if(authMode==="signup"){
-    const { error } = await supabase.auth.signUp({
-      email:email.value,
-      password:password.value,
-      options:{data:{full_name:nameInput.value}}
-    });
-    if(error) return alert(error.message);
-    alert("Account created. Now login.");
-    toggleMode();
-    return;
-  }
-
-  const { data, error } = await supabase.auth.signInWithPassword({
-    email:email.value,password:password.value
-  });
-  if(error) return alert(error.message);
-  if(!data.session) return alert("No session");
-
-  initApp();
-};
-
-/* RESET EMAIL */
-window.resetPassword=async()=>{
-  if(!email.value) return alert("Enter email first");
-  const { error } = await supabase.auth.resetPasswordForEmail(
-    email.value,
-    { redirectTo: location.origin }
-  );
-  if(error) return alert(error.message);
-  alert("Password reset email sent");
-};
-
-/* UPDATE PASSWORD */
-window.updatePassword=async()=>{
-  const { error } = await supabase.auth.updateUser({
-    password:newPassword.value
-  });
-  if(error) return alert(error.message);
-  alert("Password updated");
-  location.reload();
-};
-
-/* INIT APP */
-async function initApp(){
-  authPage.style.display="none";
-  app.style.display="block";
+/* LOAD DATA */
+async function load(){
   const { data:{ user } } = await supabase.auth.getUser();
-  welcome.textContent=`👋 Hi, ${user.user_metadata.full_name||"Student"}`;
+  const { data } = await supabase
+    .from("classes")
+    .select("*")
+    .eq("user_id",user.id);
+
+  classes=data||[];
+  render();
+  startCountdown();
 }
 
-/* LOGOUT */
-window.logout=async()=>{
-  await supabase.auth.signOut();
-  location.reload();
+/* BUILD MATRIX */
+function matrix(){
+  const m={};
+  DAYS.forEach(d=>{
+    m[d]=SLOTS.map(([s,e])=>{
+      return classes.find(c=>
+        c.day===d &&
+        c.start_time===s &&
+        c.end_time===e
+      ) || {gap:true,day:d,start:s,end:e};
+    });
+  });
+  return m;
+}
+
+/* RENDER */
+function render(){
+  const m=matrix();
+  table.innerHTML=`
+    <tr>
+      <th>Day</th>
+      ${SLOTS.map(s=>`<th>${s[0]} – ${s[1]}</th>`).join("")}
+    </tr>
+  `;
+
+  Object.entries(m).forEach(([day,cells])=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="day">${day}</td>`;
+
+    cells.forEach(cell=>{
+      const td=document.createElement("td");
+      if(cell.gap){
+        td.innerHTML=`<div class="cell gap">gap</div>`;
+        td.onclick=()=>openNew(cell);
+      }else{
+        td.innerHTML=`
+          <div class="cell" style="background:${cell.color}">
+            <b>${cell.title}</b><br>
+            Room: ${cell.room}
+            <div class="timer" data-id="${cell.id}"></div>
+          </div>
+        `;
+        td.onclick=()=>openEdit(cell);
+      }
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+}
+
+/* COUNTDOWN */
+function startCountdown(){
+  setInterval(()=>{
+    const now=new Date();
+    let nearest=null;
+
+    classes.forEach(c=>{
+      const [h,m]=c.start_time.split(":");
+      const d=new Date();
+      d.setHours(h,m,0,0);
+      const diff=d-now;
+      if(diff>0 && (!nearest||diff<nearest.diff))
+        nearest={c,diff};
+    });
+
+    document.querySelectorAll(".timer").forEach(t=>t.textContent="");
+    document.querySelectorAll(".cell").forEach(c=>c.classList.remove("next"));
+
+    if(nearest){
+      const mins=Math.floor(nearest.diff/60000);
+      document
+        .querySelector(`[data-id="${nearest.c.id}"]`)
+        .textContent=`${mins} min`;
+      document
+        .querySelector(`[data-id="${nearest.c.id}"]`)
+        .closest(".cell")
+        .classList.add("next");
+
+      nextCard.innerHTML=`
+        <b>NEXT UPCOMING CLASS</b><br>
+        <b>${nearest.c.title}</b><br>
+        ${nearest.c.day} • ${nearest.c.start_time} – ${nearest.c.end_time}
+      `;
+    }
+  },1000);
+}
+
+/* MODAL */
+function openNew(slot){
+  active=null;
+  activeSlot=slot;
+  modalTitle.textContent="Add class";
+  mTitle.value="";
+  mRoom.value="";
+  mStart.value=slot.start;
+  mEnd.value=slot.end;
+  modal.style.display="flex";
+}
+
+function openEdit(c){
+  active=c;
+  modalTitle.textContent="Edit class";
+  mTitle.value=c.title;
+  mRoom.value=c.room;
+  mStart.value=c.start_time;
+  mEnd.value=c.end_time;
+  modal.style.display="flex";
+}
+
+window.closeModal=()=>modal.style.display="none";
+
+/* SAVE / DELETE */
+window.saveClass=async()=>{
+  const { data:{ user } } = await supabase.auth.getUser();
+  const base={
+    user_id:user.id,
+    title:mTitle.value,
+    room:mRoom.value,
+    start_time:mStart.value,
+    end_time:mEnd.value,
+    day:active?active.day:activeSlot.day,
+    color:active?.color||"#c7d2fe"
+  };
+
+  if(active)
+    await supabase.from("classes").update(base).eq("id",active.id);
+  else
+    await supabase.from("classes").insert(base);
+
+  closeModal();
+  load();
 };
 
-/* SESSION CHECK (PASSWORD RESET HANDLER) */
+window.deleteClass=async()=>{
+  if(!active) return;
+  await supabase.from("classes").delete().eq("id",active.id);
+  closeModal();
+  load();
+};
+
+/* SESSION */
 const { data:{ session } } = await supabase.auth.getSession();
-if(session){
-  if(location.hash.includes("type=recovery")){
-    authPage.style.display="none";
-    resetPage.style.display="block";
-  } else {
-    initApp();
-  }
-}
+if(session) load();
 </script>
 
 </body>
