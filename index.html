@@ -146,7 +146,10 @@ th{background:#1f2937;color:#fff;padding:10px}
 
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-const supabase=createClient("YOUR_URL","YOUR_KEY");
+const supabase = createClient(
+  "https://uwjnbbmbxxodiwrleozc.supabase.co",
+  "sb_publishable_OINdv3b3c9-SRUr7ngWVlA_iPXM89of"
+);
 
 /* ===== AUTH + NAME ===== */
 async function showUserName(){
@@ -229,3 +232,4 @@ if(session){
 
 </body>
 </html>
+
