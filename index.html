@@ -25,11 +25,7 @@ body{
 .link{text-align:center;font-size:13px;color:#4f46e5;cursor:pointer}
 
 /* HEADER */
-.header{
-  text-align:center;
-  padding:18px;
-  color:#fff
-}
+.header{text-align:center;padding:18px;color:#fff}
 .header h1{margin:0;font-size:26px}
 #userName{font-size:14px;opacity:.9;cursor:pointer;text-decoration:underline}
 
@@ -49,27 +45,18 @@ th{background:#1f2937;color:#fff;padding:10px}
 
 /* CLASS BLOCK */
 .block{
-  position:absolute;
-  left:6px; right:6px;
-  border-radius:14px;
-  padding:10px;
+  position:absolute;left:6px;right:6px;
+  border-radius:14px;padding:10px;
   box-shadow:0 4px 12px rgba(0,0,0,.2);
-  cursor:pointer;
+  cursor:pointer
 }
 .timer{
-  display:inline-block;
-  margin-top:6px;
-  padding:4px 10px;
-  background:#fff;
-  border-radius:999px;
-  font-size:12px;
-  font-weight:700
+  display:inline-block;margin-top:6px;
+  padding:4px 10px;background:#fff;
+  border-radius:999px;font-size:12px;font-weight:700
 }
 .block.next{outline:3px solid #f59e0b}
-.block.active{
-  animation:pulse 1.6s infinite;
-  z-index:5
-}
+.block.active{animation:pulse 1.6s infinite;z-index:5}
 @keyframes pulse{
   0%{box-shadow:0 0 0 0 rgba(245,158,11,.6)}
   70%{box-shadow:0 0 0 12px rgba(245,158,11,0)}
@@ -82,13 +69,10 @@ th{background:#1f2937;color:#fff;padding:10px}
   background:linear-gradient(135deg,#f8fafc,#eef2ff);
   border:2px dashed #c7d2fe;
   border-radius:14px;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  font-weight:600;
-  color:#475569;
-  cursor:pointer;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;
+  font-weight:600;color:#475569;
+  cursor:pointer
 }
 .gap small{font-size:11px;opacity:.7}
 
@@ -98,16 +82,13 @@ th{background:#1f2937;color:#fff;padding:10px}
   background:rgba(0,0,0,.5);
   display:none;align-items:center;justify-content:center
 }
-.modal>div{
-  background:#fff;border-radius:14px;
-  padding:20px;width:340px
-}
+.modal>div{background:#fff;border-radius:14px;padding:20px;width:340px}
 .modal input{width:100%;padding:8px;margin-bottom:8px}
 .actions{display:flex;gap:8px}
 .modal button{
   flex:1;padding:10px;border:none;
-  border-radius:999px;
-  background:#4f46e5;color:#fff;font-weight:700
+  border-radius:999px;background:#4f46e5;
+  color:#fff;font-weight:700
 }
 
 /* CHAT */
@@ -125,14 +106,11 @@ th{background:#1f2937;color:#fff;padding:10px}
 }
 #chatBadge{
   background:#f59e0b;color:#000;
-  border-radius:999px;padding:2px 8px;font-size:12px;display:none
+  border-radius:999px;padding:2px 8px;
+  font-size:12px;display:none
 }
 #chatBody{padding:10px}
-.chatLine{font-size:13px;margin-bottom:6px}
-.msg{
-  background:#f1f5f9;border-radius:10px;
-  padding:8px;margin-bottom:8px
-}
+.msg{background:#f1f5f9;border-radius:10px;padding:8px;margin-bottom:8px}
 .reply{margin-left:18px;background:#e0e7ff}
 .admin{color:red;font-weight:800}
 </style>
@@ -154,15 +132,14 @@ th{background:#1f2937;color:#fff;padding:10px}
 <!-- CHAT -->
 <div id="chatWidget" class="hidden">
   <div id="chatHeader">
-    💬 Campus
-    <span id="chatBadge">0</span>
+    💬 Campus <span id="chatBadge">0</span>
   </div>
   <div id="chatBody">
     <div id="chatCollapsed"></div>
     <div id="chatFull" class="hidden">
       <div id="chatMessages"></div>
       <div style="display:flex;gap:6px">
-        <input id="chatInput" placeholder="Type..." style="flex:1;padding:6px;border-radius:999px;border:1px solid #ccc">
+        <input id="chatInput" placeholder="Type…" style="flex:1;padding:6px;border-radius:999px;border:1px solid #ccc">
         <button onclick="sendMessage()" style="padding:6px 12px;border:none;border-radius:999px;background:#4f46e5;color:#fff">Send</button>
       </div>
     </div>
@@ -215,20 +192,124 @@ const supabase=createClient(
   "sb_publishable_OINdv3b3c9-SRUr7ngWVlA_iPXM89of"
 );
 
-/* ================= ORIGINAL LOGIC (UNCHANGED) ================= */
-/* everything from your pasted file is untouched here */
-/* ... exactly same auth, timetable, modal, counters ... */
+/* ========= ORIGINAL LOGIC (UNCHANGED) ========= */
+let mode="login",classes=[],active=null,activeSlot=null;
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday"];
+const SLOTS=[["08:00","10:20"],["10:20","12:40"],["12:40","14:10"],["14:40","16:10"]];
+const toMin=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
 
-/* ================= MESSENGER (ADDED) ================= */
-let chatOpen=false,replyTo=null,unread=0;
+/* AUTH */
+window.toggleAuth=()=>{
+  mode=mode==="login"?"signup":"login";
+  authTitle.textContent=mode==="login"?"Login":"Create account";
+  name.classList.toggle("hidden",mode==="login");
+};
+window.submitAuth=async()=>{
+  if(mode==="signup"){
+    await supabase.auth.signUp({
+      email:email.value,password:password.value,
+      options:{data:{full_name:name.value}}
+    });
+    toggleAuth();return;
+  }
+  await supabase.auth.signInWithPassword({email:email.value,password:password.value});
+  init();
+};
+window.resetPass=()=>supabase.auth.resetPasswordForEmail(email.value,{redirectTo:location.origin});
 
+async function showUserName(){
+  const {data:{user}}=await supabase.auth.getUser();
+  userName.textContent=`Hi, ${user.user_metadata.full_name||"Student"} ✏️`;
+}
+window.editName=async()=>{
+  const {data:{user}}=await supabase.auth.getUser();
+  const n=prompt("Enter name",user.user_metadata.full_name||"");
+  if(!n)return;
+  await supabase.auth.updateUser({data:{full_name:n}});
+  showUserName();
+};
+
+async function init(){
+  auth.classList.add("hidden");
+  app.classList.remove("hidden");
+  await showUserName();
+  load();
+  chatWidget.classList.remove("hidden");
+  loadMessages();
+}
+
+const {data:{session}}=await supabase.auth.getSession();
+session ? init() : auth.classList.remove("hidden");
+
+/* LOAD + RENDER (unchanged) */
+async function load(){
+  const {data:{user}}=await supabase.auth.getUser();
+  const {data}=await supabase.from("classes").select("*").eq("user_id",user.id);
+  classes=data||[];
+  render();
+}
+function render(){
+  table.innerHTML=`<tr><th>Day</th>${SLOTS.map(s=>`<th>${s[0]}–${s[1]}</th>`).join("")}</tr>`;
+  DAYS.forEach(day=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="day">${day}</td>`;
+    SLOTS.forEach(([ss,se])=>{
+      const td=document.createElement("td");
+      const c=classes.find(x=>x.day===day&&toMin(x.end_time)>toMin(ss)&&toMin(x.start_time)<toMin(se));
+      if(!c){
+        const g=document.createElement("div");
+        g.className="gap";
+        g.innerHTML=`${ss==="12:40"?"🍽️ Lunch Break":"☕ Break"}<small>Click to add class</small>`;
+        g.onclick=()=>openNew({day,start:ss,end:se});
+        td.appendChild(g);
+      }else{
+        const cs=toMin(c.start_time),ce=toMin(c.end_time);
+        const top=((Math.max(cs,toMin(ss))-toMin(ss))/(toMin(se)-toMin(ss)))*100;
+        const h=((Math.min(ce,toMin(se))-Math.max(cs,toMin(ss)))/(toMin(se)-toMin(ss)))*100;
+        td.innerHTML=`<div class="cell">
+          <div class="block" style="top:${top}%;height:${h}%;background:${c.color||'#c7d2fe'}">
+            <b>${c.title}</b><br>
+            ${c.section?`[${c.section}]<br>`:""}
+            ${c.room?`Room: ${c.room}`:""}
+            <div class="timer"></div>
+          </div></div>`;
+        td.onclick=()=>openEdit(c);
+      }
+      tr.appendChild(td);
+    });
+    table.appendChild(tr);
+  });
+}
+
+/* MODAL */
+function openNew(s){active=null;activeSlot=s;modalTitle.textContent="Add class";
+  mTitle.value="";mSection.value="";mRoom.value="";
+  mStart.value=s.start;mEnd.value=s.end;modal.style.display="flex";}
+function openEdit(c){active=c;modalTitle.textContent="Edit class";
+  mTitle.value=c.title;mSection.value=c.section||"";mRoom.value=c.room||"";
+  mStart.value=c.start_time;mEnd.value=c.end_time;modal.style.display="flex";}
+window.closeModal=()=>modal.style.display="none";
+window.saveClass=async()=>{
+  const {data:{user}}=await supabase.auth.getUser();
+  const base={user_id:user.id,title:mTitle.value,section:mSection.value||null,
+    room:mRoom.value||null,start_time:mStart.value,end_time:mEnd.value,
+    day:active?active.day:activeSlot.day};
+  active?await supabase.from("classes").update(base).eq("id",active.id)
+        :await supabase.from("classes").insert(base);
+  closeModal();load();
+};
+window.deleteClass=async()=>{if(active){
+  await supabase.from("classes").delete().eq("id",active.id);
+  closeModal();load();}};
+
+/* ========= MESSENGER ========= */
+let chatOpen=false;
 chatHeader.onclick=()=>{
   chatOpen=!chatOpen;
   chatFull.classList.toggle("hidden",!chatOpen);
   chatCollapsed.classList.toggle("hidden",chatOpen);
-  if(chatOpen){unread=0;chatBadge.style.display="none";}
+  if(chatOpen){chatBadge.style.display="none";}
 };
-
 async function loadMessages(){
   const {data}=await supabase.from("messages")
     .select("*").order("created_at",{ascending:false}).limit(10);
@@ -244,7 +325,6 @@ async function loadMessages(){
     chatMessages.appendChild(d);
   });
 }
-
 window.sendMessage=async()=>{
   const text=chatInput.value.trim();
   if(!text)return;
@@ -253,18 +333,12 @@ window.sendMessage=async()=>{
     user_id:user.id,
     user_name:user.user_metadata.full_name||"Student",
     user_role:user.user_metadata.role||null,
-    content:text,
-    parent_id:replyTo
+    content:text
   });
   chatInput.value="";
   loadMessages();
 };
-
-/* show messenger after login */
-document.getElementById("chatWidget").classList.remove("hidden");
-loadMessages();
 </script>
 
 </body>
 </html>
-
