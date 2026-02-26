@@ -6,266 +6,285 @@
 <title>CampusDude</title>
 
 <style>
-body {
-  font-family: system-ui, sans-serif;
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  padding: 20px;
-  color: #333;
+:root{--slot-height:160px}
+body{
+  font-family:system-ui,sans-serif;
+  background:linear-gradient(135deg,#667eea,#764ba2);
+  margin:0;padding:20px;color:#111
 }
-h1 { color:#fff; text-align:center; }
+h1{text-align:center;color:#fff}
 
-.controls {
-  display:flex;
-  justify-content:center;
-  gap:10px;
-  flex-wrap:wrap;
-  margin-bottom:10px;
+/* AUTH */
+#authPage{
+  max-width:360px;margin:80px auto;
+  background:#fff;border-radius:16px;
+  padding:24px;box-shadow:0 20px 40px rgba(0,0,0,.25)
 }
+#authPage input{
+  width:100%;padding:10px;margin-bottom:10px;
+  border-radius:10px;border:1px solid #ddd
+}
+#authPage button{
+  width:100%;padding:10px;border-radius:999px;
+  border:none;font-weight:700;
+  background:#4f46e5;color:#fff;cursor:pointer
+}
+.switch{text-align:center;font-size:13px;cursor:pointer;color:#4f46e5}
 
-select {
-  padding:8px 14px;
-  border-radius:999px;
-  border:none;
-  font-weight:600;
+/* APP */
+#app{display:none}
+.topbar{
+  display:flex;justify-content:space-between;
+  align-items:center;color:#fff;margin-bottom:12px
 }
+.controls{display:flex;gap:10px;color:#fff;margin-bottom:12px}
+select{padding:6px 12px;border-radius:999px}
+
+/* NEXT */
+#nextCard{
+  display:none;background:#fff7ed;
+  border-left:6px solid #f59e0b;
+  border-radius:14px;padding:14px;
+  margin-bottom:14px
+}
+#nextTimer{font-size:26px;font-weight:900;color:#7c2d12}
 
 /* TABLE */
-table {
-  width:100%;
-  min-width:700px;
-  background:#fff;
-  border-collapse:collapse;
-  margin-top:20px;
-}
-th,td {
-  border:1px solid #ddd;
-  padding:10px;
-  text-align:center;
-  vertical-align:top;
-}
-th { background:#1f2937; color:#fff; }
+.table-wrap{overflow-x:auto}
+table{width:100%;min-width:1100px;border-collapse:collapse;background:#fff}
+th,td{border:1px solid #ddd;text-align:center}
+th{background:#1f2937;color:#fff;padding:10px}
+.day-col{background:#1f2937;color:#fff;font-weight:700}
+.slot{position:relative;height:var(--slot-height);cursor:pointer}
 
-.lab { background:#bbf7d0; }
-.class { background:#c7d2fe; }
-.gap { background:#fecaca; }
-
-.section { font-size:12px; font-weight:700; }
-.room { font-size:12px; opacity:.8; }
-
-.cell-countdown {
-  display:inline-block;
-  margin-top:6px;
-  padding:2px 8px;
-  background:#fff;
-  border-radius:999px;
-  font-size:12px;
+/* CLASS */
+.class-block{
+  position:absolute;left:6px;right:6px;
+  border-radius:14px;padding:8px;
+  font-size:13px;cursor:pointer
 }
+.class-title{font-weight:800}
+.timer{margin-top:6px;font-size:12px}
+.next{outline:3px solid #f59e0b}
 
-/* ⭐ NEXT CLASS HIGHLIGHT */
-.next {
-  outline:3px solid #f59e0b;
-  box-shadow:0 0 0 4px rgba(245,158,11,0.35);
+/* MODAL */
+.modal{
+  position:fixed;inset:0;
+  background:rgba(0,0,0,.5);
+  display:none;align-items:center;justify-content:center
 }
-
-.next-countdown {
-  font-size:18px;
-  font-weight:900;
-  background:linear-gradient(135deg,#fde68a,#f59e0b);
-  color:#7c2d12;
-  padding:6px 14px;
-  border-radius:999px;
-  box-shadow:0 4px 12px rgba(245,158,11,0.5);
-  animation:pulse 1.5s infinite;
+.modal-content{
+  background:#fff;border-radius:14px;
+  padding:20px;width:360px
 }
-
-@keyframes pulse {
-  0% { transform:scale(1); }
-  50% { transform:scale(1.05); }
-  100% { transform:scale(1); }
-}
-
-/* TOP CARD */
-#card {
-  background:#fff7ed;
-  padding:15px;
-  border-left:6px solid #f59e0b;
-  margin:20px auto;
-  max-width:600px;
-  display:none;
-}
+.modal-content input{width:100%;padding:8px;margin-bottom:8px}
+.modal-actions{display:flex;gap:10px;justify-content:center}
 </style>
 </head>
 
 <body>
 
-<h1>🎓 CampusDude</h1>
-
-<div class="controls">
-  <label>🔔 Notify</label>
-  <select id="notifyBefore">
-    <option value="5">5 min before</option>
-    <option value="10">10 min before</option>
-    <option value="15" selected>15 min before</option>
-    <option value="30">30 min before</option>
-  </select>
+<!-- AUTH -->
+<div id="authPage">
+  <h2 id="authTitle">Login</h2>
+  <input id="nameInput" placeholder="Your name" style="display:none">
+  <input id="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="submitAuth()">Continue</button>
+  <div class="switch" onclick="toggleMode()" id="switchText">
+    New here? Create an account
+  </div>
 </div>
 
-<div id="card">
-  <strong>NEXT UPCOMING CLASS</strong>
-  <div id="c-name"></div>
-  <div id="c-meta"></div>
-  <div id="c-time"></div>
+<!-- APP -->
+<div id="app">
+  <div class="topbar">
+    <div id="welcome"></div>
+    <button onclick="logout()">Logout</button>
+  </div>
+
+  <div class="controls">
+    <label>⏱ Timer</label>
+    <select id="timerMode">
+      <option value="smart">Smart</option>
+      <option value="left">Time left</option>
+      <option value="passed">Time passed</option>
+    </select>
+  </div>
+
+  <div id="nextCard">
+    <div id="nextTitle"></div>
+    <div id="nextMeta"></div>
+    <div id="nextTimer"></div>
+  </div>
+
+  <div class="table-wrap">
+    <table id="table"></table>
+  </div>
 </div>
 
-<div style="overflow-x:auto">
-<table id="table">
-<tr>
-  <th>Day</th>
-  <th>08:00 – 10:20</th>
-  <th>10:20 – 12:40</th>
-  <th>12:40 – 14:10</th>
-  <th>14:40 – 16:10</th>
-</tr>
-
-<tr>
-  <th>Sunday</th>
-  <td class="lab">Algorithms Laboratory<div class="section">[N]</div><div class="room">DS0103</div><div class="cell-countdown"></div></td>
-  <td class="lab">Electronic Devices Laboratory<div class="section">[Q]</div><div class="room">DS0306</div><div class="cell-countdown"></div></td>
-  <td class="gap">gap</td>
-  <td class="class">Electronic Devices Theory<div class="section">[S]</div><div class="room">6116</div><div class="cell-countdown"></div></td>
-</tr>
-
-<tr>
-  <th>Monday</th>
-  <td class="class">Object Oriented Programming<div class="section">[M]</div><div class="room">9302</div><div class="cell-countdown"></div></td>
-  <td class="gap">gap</td>
-  <td class="gap">gap</td>
-  <td class="class">Computational Statistics and Probability<div class="section">[BB]</div><div class="room">DN0610</div><div class="cell-countdown"></div></td>
-</tr>
-
-<tr>
-  <th>Tuesday</th>
-  <td class="class">Algorithms<div class="section">[N]</div><div class="room">9202</div><div class="cell-countdown"></div></td>
-  <td class="lab">Physics Laboratory<div class="section">[S]</div><div class="room">DE0203</div><div class="cell-countdown"></div></td>
-  <td class="gap">gap</td>
-  <td class="class">Electronic Devices Theory<div class="section">[S]</div><div class="room">6116</div><div class="cell-countdown"></div></td>
-</tr>
-
-<tr>
-  <th>Wednesday</th>
-  <td class="lab">Object Oriented Programming Laboratory<div class="section">[M]</div><div class="room">DS0202</div><div class="cell-countdown"></div></td>
-  <td class="gap">gap</td>
-  <td class="gap">gap</td>
-  <td class="class">Computational Statistics and Probability<div class="section">[BB]</div><div class="room">DN0610</div><div class="cell-countdown"></div></td>
-</tr>
-</table>
+<!-- MODAL -->
+<div class="modal" id="classModal">
+  <div class="modal-content">
+    <h3 id="modalTitle"></h3>
+    <input id="mTitle" placeholder="Course name">
+    <input id="mSection" placeholder="Section">
+    <input id="mRoom" placeholder="Room">
+    <input id="mStart" type="time">
+    <input id="mEnd" type="time">
+    <div id="repeatDays"></div>
+    <div class="modal-actions">
+      <button onclick="saveClass()">Save</button>
+      <button onclick="deleteClass()">Delete</button>
+      <button onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
 </div>
 
-<script>
-const TIME_SLOTS = [
-  { start:"08:00", end:"10:20" },
-  { start:"10:20", end:"12:40" },
-  { start:"12:40", end:"14:10" },
-  { start:"14:40", end:"16:10" }
-];
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const DAY_TO_INDEX = {
-  Sunday:0, Monday:1, Tuesday:2, Wednesday:3,
-  Thursday:4, Friday:5, Saturday:6
+const supabase = createClient(
+  "https://uwjnbbmbxxodiwrleozc.supabase.co",
+  "sb_publishable_OINdv3b3c9-SRUr7ngWVlA_iPXM89of"
+);
+
+const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const SLOT_START=8,SLOT_END=18;
+let classes=[],activeClass=null,activeSlot=null,authMode="login";
+
+/* AUTH */
+window.toggleMode=()=>{
+  authMode=authMode==="login"?"signup":"login";
+  authTitle.textContent=authMode==="login"?"Login":"Create account";
+  nameInput.style.display=authMode==="signup"?"block":"none";
+  switchText.textContent=authMode==="login"
+    ?"New here? Create an account":"Already have an account? Login";
 };
 
-/* 🔔 Notifications */
-if ("Notification" in window && location.protocol === "https:") {
-  Notification.requestPermission();
-}
-
-const notifySelect = document.getElementById("notifyBefore");
-let notifyBefore = Number(notifySelect.value);
-const sent = new Set();
-
-/* CORE LOOP */
-function tick(){
-  const now = new Date();
-  let next = null, min = Infinity;
-
-  document.querySelectorAll(".cell-countdown").forEach(c=>{
-    c.textContent="";
-    c.classList.remove("next-countdown");
-  });
-  document.querySelectorAll("td").forEach(td=>td.classList.remove("next"));
-
-  document.querySelectorAll("#table tr").forEach((row,i)=>{
-    if(i===0) return;
-
-    const dayName = row.cells[0].innerText.trim();
-    const dayIdx = DAY_TO_INDEX[dayName];
-
-    [...row.cells].slice(1).forEach((cell,j)=>{
-      if(cell.classList.contains("gap")) return;
-
-      const target = new Date(now);
-      let diffDay = dayIdx - now.getDay();
-      if(diffDay < 0) diffDay += 7;
-      target.setDate(now.getDate()+diffDay);
-
-      const [h,m] = TIME_SLOTS[j].start.split(":");
-      target.setHours(h,m,0,0);
-
-      const diff = target - now;
-      if(diff <= 0) return;
-
-      const minsLeft = Math.floor(diff / 60000);
-      const notifyKey = `${dayName}-${TIME_SLOTS[j].start}`;
-
-      if (
-        minsLeft === notifyBefore &&
-        Notification.permission === "granted" &&
-        !sent.has(notifyKey)
-      ) {
-        new Notification("📚 Upcoming Class", {
-          body: `${cell.childNodes[0].nodeValue.trim()} starts in ${notifyBefore} minutes`
-        });
-        sent.add(notifyKey);
-      }
-
-      const d=Math.floor(diff/86400000);
-      const hh=Math.floor(diff/3600000)%24;
-      const mm=Math.floor(diff/60000)%60;
-      const ss=Math.floor(diff/1000)%60;
-
-      const countdown = `${d?d+"d ":""}${hh}h ${mm}m ${ss}s`;
-      cell.querySelector(".cell-countdown").textContent = countdown;
-
-      if(diff < min){
-        min = diff;
-        next = {
-          name: cell.childNodes[0].nodeValue.trim(),
-          section: cell.querySelector(".section")?.innerText || "",
-          room: cell.querySelector(".room")?.innerText || "",
-          meta: `${dayName} • ${TIME_SLOTS[j].start} – ${TIME_SLOTS[j].end}`,
-          countdown,
-          cell
-        };
-      }
+window.submitAuth=async()=>{
+  if(authMode==="signup"){
+    await supabase.auth.signUp({
+      email:email.value,
+      password:password.value,
+      options:{data:{full_name:nameInput.value}}
     });
-  });
-
-  if(next){
-    next.cell.classList.add("next");
-    const cd = next.cell.querySelector(".cell-countdown");
-    cd.classList.add("next-countdown");
-
-    document.getElementById("card").style.display="block";
-    document.getElementById("c-name").textContent =
-      `${next.name} ${next.section}`;
-    document.getElementById("c-meta").textContent =
-      `${next.meta} • ${next.room}`;
-    document.getElementById("c-time").textContent = next.countdown;
+    toggleMode();
+  }else{
+    const {error}=await supabase.auth.signInWithPassword({
+      email:email.value,password:password.value
+    });
+    if(!error)initApp();
   }
+};
+
+window.logout=async()=>{await supabase.auth.signOut();location.reload();};
+
+/* INIT */
+async function initApp(){
+  authPage.style.display="none";
+  app.style.display="block";
+  const {data:{user}}=await supabase.auth.getUser();
+  welcome.textContent=`👋 Hi, ${user.user_metadata.full_name||"Student"}`;
+  buildTable();
+  loadClasses();
 }
 
-setInterval(tick,1000);
-tick();
+/* DATA */
+async function loadClasses(){
+  const {data:{user}}=await supabase.auth.getUser();
+  const {data}=await supabase
+    .from("classes")
+    .select("*")
+    .eq("user_id",user.id);
+
+  classes=data||[];
+  renderClasses();
+}
+
+/* TABLE */
+function buildTable(){
+  table.innerHTML="<tr><th>Day</th>"+
+    [...Array(5)].map((_,i)=>`<th>${8+i*2}:00–${10+i*2}:00</th>`).join("")+
+    "</tr>";
+
+  DAYS.forEach(d=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`<td class="day-col">${d}</td>`;
+    for(let h=8;h<18;h+=2){
+      const td=document.createElement("td");
+      td.className="slot";
+      td.dataset.day=d;
+      td.dataset.start=`${String(h).padStart(2,"0")}:00`;
+      td.onclick=()=>openNewClass(td);
+      tr.appendChild(td);
+    }
+    table.appendChild(tr);
+  });
+}
+
+function renderClasses(){
+  document.querySelectorAll(".slot").forEach(s=>s.innerHTML="");
+  classes.forEach(c=>{
+    const slot=document.querySelector(
+      `.slot[data-day="${c.day}"][data-start="${c.start_time.slice(0,2)}:00"]`
+    );
+    if(!slot)return;
+    const div=document.createElement("div");
+    div.className="class-block";
+    div.dataset.id=c.id;
+    div.style.background=c.color;
+    div.innerHTML=`<div class="class-title">${c.title}</div><div class="timer"></div>`;
+    div.onclick=e=>{e.stopPropagation();openEditClass(c)};
+    slot.appendChild(div);
+  });
+}
+
+/* MODAL */
+function openNewClass(td){
+  activeClass=null;
+  activeSlot={day:td.dataset.day,start:td.dataset.start};
+  modalTitle.textContent="Add class";
+  classModal.style.display="flex";
+}
+function openEditClass(c){
+  activeClass=c;
+  modalTitle.textContent="Edit class";
+  mTitle.value=c.title;
+  mStart.value=c.start_time;
+  mEnd.value=c.end_time;
+  classModal.style.display="flex";
+}
+window.closeModal=()=>classModal.style.display="none";
+
+/* SAVE */
+window.saveClass=async()=>{
+  const {data:{user}}=await supabase.auth.getUser();
+  const base={
+    user_id:user.id,
+    day:activeClass?activeClass.day:activeSlot.day,
+    title:mTitle.value,
+    start_time:mStart.value,
+    end_time:mEnd.value,
+    color:"#c7d2fe"
+  };
+  if(activeClass)
+    await supabase.from("classes").update(base).eq("id",activeClass.id);
+  else
+    await supabase.from("classes").insert(base);
+
+  closeModal();loadClasses();
+};
+
+window.deleteClass=async()=>{
+  if(!activeClass)return;
+  await supabase.from("classes").delete().eq("id",activeClass.id);
+  closeModal();loadClasses();
+};
+
+/* AUTO LOGIN */
+const {data:{session}}=await supabase.auth.getSession();
+if(session)initApp();
 </script>
 
 </body>
