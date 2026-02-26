@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CampusDude</title>
 
 <style>
@@ -16,25 +16,36 @@ body{
 
 /* AUTH */
 .auth{
-  max-width:360px;
-  margin:80px auto;
-  background:#fff;
-  border-radius:16px;
-  padding:24px;
-  box-shadow:0 20px 40px rgba(0,0,0,.25);
+  max-width:360px;margin:80px auto;background:#fff;
+  border-radius:16px;padding:24px;
+  box-shadow:0 20px 40px rgba(0,0,0,.25)
 }
 .auth input{width:100%;padding:10px;margin-bottom:10px;border-radius:10px;border:1px solid #ddd}
 .auth button{width:100%;padding:10px;border:none;border-radius:999px;font-weight:700;background:#4f46e5;color:#fff}
 .link{text-align:center;font-size:13px;color:#4f46e5;cursor:pointer}
 
 /* HEADER */
-.header{text-align:center;padding:22px;font-size:28px;font-weight:800;color:#fff}
+.header{
+  text-align:center;
+  padding:18px;
+  color:#fff
+}
+.header h1{
+  margin:0;
+  font-size:26px
+}
+#userName{
+  font-size:14px;
+  opacity:.9;
+  cursor:pointer;
+  text-decoration:underline;
+}
 
 /* TOP BAR */
 #topWrap{max-width:900px;margin:0 auto 16px}
 #topLabel{color:#fff;font-weight:700;margin-bottom:6px}
 #topTrack{height:18px;background:#fff;border-radius:999px;overflow:hidden}
-#topBar{height:100%;width:0%;background:linear-gradient(135deg,#fde68a,#f59e0b);transition:width 1s linear}
+#topBar{height:100%;width:0%;background:linear-gradient(135deg,#fde68a,#f59e0b)}
 
 /* TABLE */
 .wrap{overflow-x:auto;padding:0 12px 40px}
@@ -44,18 +55,18 @@ th{background:#1f2937;color:#fff;padding:10px}
 .day{background:#1f2937;color:#fff;font-weight:700;width:120px}
 
 /* SLOT */
-.cell{position:relative;height:120px}
-.gap{
-  background:#ffd6d6;color:#7f1d1d;font-weight:700;
-  height:100%;display:flex;align-items:center;justify-content:center;cursor:pointer
+.cell{
+  position:relative;
+  height:120px;
 }
 
 /* CLASS BLOCK */
 .block{
-  position:absolute;left:6px;right:6px;
-  border-radius:12px;padding:8px;
-  box-shadow:0 4px 10px rgba(0,0,0,.2);
-  transition:height .6s linear;
+  position:absolute;
+  left:6px; right:6px;
+  border-radius:14px;
+  padding:10px;
+  box-shadow:0 4px 12px rgba(0,0,0,.2);
   cursor:pointer;
 }
 .timer{
@@ -65,17 +76,34 @@ th{background:#1f2937;color:#fff;padding:10px}
   background:#fff;
   border-radius:999px;
   font-size:12px;
-  font-weight:700;
+  font-weight:700
 }
-
-/* STATES */
 .block.next{outline:3px solid #f59e0b}
-@keyframes pulseGlow{
-  0%{box-shadow:0 0 0 0 rgba(245,158,11,.7)}
+.block.active{
+  animation:pulse 1.6s infinite;
+  z-index:5
+}
+@keyframes pulse{
+  0%{box-shadow:0 0 0 0 rgba(245,158,11,.6)}
   70%{box-shadow:0 0 0 12px rgba(245,158,11,0)}
   100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}
 }
-.block.active{animation:pulseGlow 1.8s infinite;z-index:5}
+
+/* BREAK */
+.gap{
+  height:100%;
+  background:linear-gradient(135deg,#f8fafc,#eef2ff);
+  border:2px dashed #c7d2fe;
+  border-radius:14px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+  color:#475569;
+  cursor:pointer;
+}
+.gap small{font-size:11px;opacity:.7}
 
 /* MODAL */
 .modal{
@@ -84,12 +112,14 @@ th{background:#1f2937;color:#fff;padding:10px}
   display:none;align-items:center;justify-content:center
 }
 .modal>div{
-  background:#fff;border-radius:14px;padding:20px;width:340px
+  background:#fff;border-radius:14px;
+  padding:20px;width:340px
 }
 .modal input{width:100%;padding:8px;margin-bottom:8px}
 .actions{display:flex;gap:8px}
 .modal button{
-  flex:1;padding:10px;border:none;border-radius:999px;
+  flex:1;padding:10px;border:none;
+  border-radius:999px;
   background:#4f46e5;color:#fff;font-weight:700
 }
 </style>
@@ -100,7 +130,7 @@ th{background:#1f2937;color:#fff;padding:10px}
 <!-- AUTH -->
 <div id="auth" class="auth hidden">
   <h2 id="authTitle">Login</h2>
-  <input id="name" placeholder="Name" class="hidden">
+  <input id="name" placeholder="Full name" class="hidden">
   <input id="email" placeholder="Email">
   <input id="password" type="password" placeholder="Password">
   <button onclick="submitAuth()">Continue</button>
@@ -110,14 +140,23 @@ th{background:#1f2937;color:#fff;padding:10px}
 
 <!-- APP -->
 <div id="app" class="hidden">
-  <div class="header">🎓 CampusDude</div>
+  <div class="header">
+    <h1>🎓 CampusDude</h1>
+    <span id="userName" onclick="editName()"></span>
+  </div>
 
   <div id="topWrap">
     <div id="topLabel"></div>
     <div id="topTrack"><div id="topBar"></div></div>
   </div>
 
-  <div class="wrap"><table id="table"></table></div>
+  <div class="wrap">
+    <table id="table"></table>
+  </div>
+
+  <div style="text-align:center;color:#e5e7eb;font-size:14px;opacity:.85">
+    💡 Idea & Developed by <b style="color:#fff">Tlv / Mun</b>
+  </div>
 </div>
 
 <!-- MODAL -->
@@ -140,49 +179,16 @@ th{background:#1f2937;color:#fff;padding:10px}
 <script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-/* SUPABASE */
 const supabase=createClient(
   "https://uwjnbbmbxxodiwrleozc.supabase.co",
   "sb_publishable_OINdv3b3c9-SRUr7ngWVlA_iPXM89of"
 );
 
-/* AUTH */
-let mode="login";
-window.toggleAuth=()=>{
-  mode=mode==="login"?"signup":"login";
-  authTitle.textContent=mode==="login"?"Login":"Create account";
-  name.classList.toggle("hidden",mode==="login");
-  switchText.textContent=mode==="login"
-    ?"New here? Create account":"Already have an account?";
-};
-window.submitAuth=async()=>{
-  if(mode==="signup"){
-    const {error}=await supabase.auth.signUp({
-      email:email.value,password:password.value,
-      options:{data:{full_name:name.value}}
-    });
-    if(error) return alert(error.message);
-    toggleAuth(); return;
-  }
-  const {error}=await supabase.auth.signInWithPassword({
-    email:email.value,password:password.value
-  });
-  if(error) return alert(error.message);
-  init();
-};
-window.resetPass=async()=>{
-  await supabase.auth.resetPasswordForEmail(email.value,{redirectTo:location.origin});
-  alert("Reset email sent");
-};
-
-/* CONFIG */
+let mode="login",classes=[],active=null,activeSlot=null;
 const DAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday"];
 const SLOTS=[["08:00","10:20"],["10:20","12:40"],["12:40","14:10"],["14:40","16:10"]];
-let classes=[],active=null,activeSlot=null;
 
-/* HELPERS */
 const toMin=t=>{const[a,b]=t.split(":").map(Number);return a*60+b};
-const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
 const fmt=s=>{
   const d=Math.floor(s/86400);
   const h=Math.floor((s%86400)/3600);
@@ -190,40 +196,69 @@ const fmt=s=>{
   const sec=Math.floor(s%60);
   return (d?d+"d ":"")+(h?h+"h ":"")+m+"m "+sec+"s";
 };
-function colorFromSection(s){
-  if(!s) return "#e5e7eb";
-  let h=0;for(let c of s)h=c.charCodeAt(0)+((h<<5)-h);
-  const c=["#c7d2fe","#bbf7d0","#fde68a","#fecaca","#ddd6fe","#bae6fd"];
-  return c[Math.abs(h)%c.length];
-}
 
-/* DAY-AWARE NEXT OCCURRENCE */
-function nextClassStartDate(cls){
+function nextDate(cls){
   const now=new Date();
-  const today=now.getDay();
-  const classDay=DAYS.indexOf(cls.day);
-  let diff=classDay-today;
+  let diff=DAYS.indexOf(cls.day)-now.getDay();
   if(diff<0) diff+=7;
-
   const d=new Date(now);
   d.setDate(now.getDate()+diff);
-  const [h,m]=cls.start_time.split(":").map(Number);
+  const[h,m]=cls.start_time.split(":").map(Number);
   d.setHours(h,m,0,0);
-
   if(diff===0 && d<=now) d.setDate(d.getDate()+7);
   return d;
 }
 
-/* INIT */
+/* SHOW USER NAME */
+async function showUserName(){
+  const { data:{ user } } = await supabase.auth.getUser();
+  const name = user?.user_metadata?.full_name || "Student";
+  document.getElementById("userName").textContent = `Hi, ${name} ✏️`;
+}
+
+/* AUTH */
+window.toggleAuth=()=>{
+  mode=mode==="login"?"signup":"login";
+  authTitle.textContent=mode==="login"?"Login":"Create account";
+  name.classList.toggle("hidden",mode==="login");
+};
+window.submitAuth=async()=>{
+  if(mode==="signup"){
+    await supabase.auth.signUp({
+      email:email.value,
+      password:password.value,
+      options:{data:{full_name:name.value}}
+    });
+    toggleAuth();return;
+  }
+  await supabase.auth.signInWithPassword({
+    email:email.value,password:password.value
+  });
+  init();
+};
+window.resetPass=()=>supabase.auth.resetPasswordForEmail(email.value,{redirectTo:location.origin});
+
+/* EDIT NAME */
+window.editName=async()=>{
+  const { data:{ user } } = await supabase.auth.getUser();
+  const current=user?.user_metadata?.full_name||"";
+  const n=prompt("Enter your name",current);
+  if(!n)return;
+  await supabase.auth.updateUser({data:{full_name:n}});
+  showUserName();
+};
+
 async function init(){
   auth.classList.add("hidden");
   app.classList.remove("hidden");
+  await showUserName();
   load();
 }
+
 const {data:{session}}=await supabase.auth.getSession();
 session?init():auth.classList.remove("hidden");
 
-/* LOAD */
+/* LOAD + RENDER (unchanged logic) */
 async function load(){
   const {data:{user}}=await supabase.auth.getUser();
   const {data}=await supabase.from("classes").select("*").eq("user_id",user.id);
@@ -231,7 +266,6 @@ async function load(){
   render();
 }
 
-/* RENDER */
 function render(){
   table.innerHTML=`<tr><th>Day</th>${SLOTS.map(s=>`<th>${s[0]}–${s[1]}</th>`).join("")}</tr>`;
   DAYS.forEach(day=>{
@@ -242,7 +276,9 @@ function render(){
       const c=classes.find(x=>x.day===day&&toMin(x.end_time)>toMin(ss)&&toMin(x.start_time)<toMin(se));
       if(!c){
         const g=document.createElement("div");
-        g.className="gap";g.textContent="gap";
+        const lunch=ss==="12:40";
+        g.className="gap";
+        g.innerHTML=`${lunch?"🍽️ Lunch Break":"☕ Break"}<small>Click to add class</small>`;
         g.onclick=()=>openNew({day,start:ss,end:se});
         td.appendChild(g);
       }else{
@@ -251,14 +287,8 @@ function render(){
         const h=((Math.min(ce,toMin(se))-Math.max(cs,toMin(ss)))/(toMin(se)-toMin(ss)))*100;
         td.innerHTML=`
           <div class="cell">
-            <div class="block"
-              data-id="${c.id}"
-              data-day="${c.day}"
-              data-start="${c.start_time}"
-              data-end="${c.end_time}"
-              data-slot-start="${ss}"
-              data-slot-end="${se}"
-              style="top:${top}%;height:${h}%;background:${c.color}">
+            <div class="block" data-day="${c.day}" data-start="${c.start_time}" data-end="${c.end_time}"
+              style="top:${top}%;height:${h}%;background:${c.color||'#c7d2fe'}">
               <b>${c.title}</b><br>
               ${c.section?`[${c.section}]<br>`:""}
               ${c.room?`Room: ${c.room}`:""}
@@ -273,54 +303,6 @@ function render(){
   });
 }
 
-/* LIVE LOOP */
-setInterval(()=>{
-  const now=new Date();
-  let next=null;
-
-  document.querySelectorAll(".block").forEach(b=>{
-    const cls={
-      day:b.dataset.day,
-      start_time:b.dataset.start,
-      end_time:b.dataset.end
-    };
-    const start=nextClassStartDate(cls);
-    const end=new Date(start.getTime()+ (toMin(cls.end_time)-toMin(cls.start_time))*60000);
-    const diffSec=(start-now)/1000;
-
-    /* timer */
-    const t=b.querySelector(".timer");
-    if(diffSec>0){
-      t.textContent=fmt(diffSec);
-      b.classList.remove("active");
-    }else if(now<end){
-      t.textContent=fmt((end-now)/1000);
-      b.classList.add("active");
-    }else{
-      t.textContent="";
-      b.classList.remove("active");
-    }
-
-    b.classList.remove("next");
-
-    if(diffSec>0 && (!next||diffSec<next.diff)){
-      next={block:b,start,end,diff:diffSec};
-    }
-  });
-
-  /* TOP BAR */
-  if(next){
-    const total=(next.start-now)+next.diff*1000;
-    const progress=1-(next.diff*1000/total);
-    topBar.style.width=clamp(progress,0,1)*100+"%";
-    topLabel.textContent=`Next: ${next.block.querySelector("b").textContent} in ${fmt(next.diff)}`;
-    next.block.classList.add("next");
-  }else{
-    topBar.style.width="0%";
-    topLabel.textContent="";
-  }
-},1000);
-
 /* MODAL */
 function openNew(s){
   active=null;activeSlot=s;
@@ -332,25 +314,21 @@ function openNew(s){
 function openEdit(c){
   active=c;
   modalTitle.textContent="Edit class";
-  mTitle.value=c.title;mSection.value=c.section||"";
-  mRoom.value=c.room||"";mStart.value=c.start_time;mEnd.value=c.end_time;
+  mTitle.value=c.title;mSection.value=c.section||"";mRoom.value=c.room||"";
+  mStart.value=c.start_time;mEnd.value=c.end_time;
   modal.style.display="flex";
 }
 window.closeModal=()=>modal.style.display="none";
-
-/* SAVE / DELETE */
 window.saveClass=async()=>{
   const {data:{user}}=await supabase.auth.getUser();
-  const sec=mSection.value||null;
   const base={
     user_id:user.id,
     title:mTitle.value,
-    section:sec,
+    section:mSection.value||null,
     room:mRoom.value||null,
     start_time:mStart.value,
     end_time:mEnd.value,
-    day:active?active.day:activeSlot.day,
-    color:colorFromSection(sec)
+    day:active?active.day:activeSlot.day
   };
   active
     ?await supabase.from("classes").update(base).eq("id",active.id)
